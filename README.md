@@ -12,7 +12,7 @@ Submission by the candidate. Two questions, both delivered.
 | **2. One-page report** | [`docs/ONE_PAGE_REPORT.md`](docs/ONE_PAGE_REPORT.md) |
 | **3. Supporting material** — prompts, 30 images, per-image metadata, proof of generation, notes | [`q1_eval/`](q1_eval/) |
 | **4. UI / dashboard / leaderboard design** | [`docs/DESIGN_UI_DASHBOARD.md`](docs/DESIGN_UI_DASHBOARD.md) (+ built rating UI below) |
-| **5. Video walkthrough (≤2 min)** — ▶ [**watch the walkthrough**](https://drive.google.com/file/d/1COEtU2dQ6jl9YrAIgCyAl0tZxNHgQ0d2/view?usp=drive_link) (script + shot list: [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md)) |
+| **5. Video walkthrough (≤2 min)** — ▶ [**watch the walkthrough**](https://drive.google.com/file/d/1COEtU2dQ6jl9YrAIgCyAl0tZxNHgQ0d2/view?usp=drive_link) |
 | **Results dashboard** — every model, rater, criterion, prompt and image view | [`q1_eval/rating_ui/dashboard.html`](q1_eval/rating_ui/dashboard.html) |
 | Final reflection (5 questions) | [`docs/REFLECTION.md`](docs/REFLECTION.md) |
 
