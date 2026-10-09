@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DukaanBench — results dashboard</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3140;
+    --text:#e6edf3; --muted:#8b98a9; --accent:#3ddc84; --warn:#ff5d5d;
+    --amber:#f5a623; --blue:#58a6ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header{padding:20px 26px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+  h1{margin:0 0 4px;font-size:19px;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px}
+  .facts{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px;font-size:12.5px}
+  .facts b{color:var(--text);font-size:15px;display:block}
+  .facts span{color:var(--muted)}
+  .banner{margin:14px 26px 0;padding:11px 14px;border-radius:9px;font-size:13px;
+          background:#2a1416;border:1px solid #5c2326;color:#ffb3b3}
+  .banner b{color:#ff8080}
+  .banner.ok{background:#12241a;border-color:#1f5c37;color:#9be7bd}
+  .banner.ok b{color:#3ddc84}
+  nav{display:flex;gap:4px;padding:14px 26px 0;flex-wrap:wrap}
+  nav button{background:transparent;color:var(--muted);border:1px solid transparent;
+             border-bottom:none;padding:8px 13px;border-radius:8px 8px 0 0;cursor:pointer;
+             font-size:13px}
+  nav button:hover{color:var(--text)}
+  nav button.active{background:var(--panel);color:var(--text);border-color:var(--line)}
+  main{padding:20px 26px 60px}
+  section{display:none}
+  section.on{display:block}
+  h2{font-size:15px;margin:0 0 4px}
+  .hint{color:var(--muted);font-size:12.5px;margin:0 0 14px;max-width:900px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:14px 16px;margin-bottom:18px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:hover{background:var(--panel2)}
+  tbody tr.click{cursor:pointer}
+  .best{color:var(--accent);font-weight:700}
+  .low{color:var(--warn)}
+  .bar{height:9px;border-radius:5px;background:#232a36;position:relative;min-width:90px}
+  .bar i{display:block;height:100%;border-radius:5px;background:var(--accent)}
+  .pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;
+        border:1px solid var(--line);color:var(--muted)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  select,input[type=text]{background:var(--panel2);color:var(--text);border:1px solid var(--line);
+                           border-radius:7px;padding:6px 9px;font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .img{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .img img{width:100%;display:block;background:#000;aspect-ratio:1/1;object-fit:cover}
+  .img .meta{padding:8px 10px;font-size:12px}
+  .img .meta .m{color:var(--muted)}
+  .img .sc{float:right;font-weight:700}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap}
+  .kpi .box{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+            padding:12px 16px;min-width:150px}
+  .kpi .box b{font-size:22px;display:block}
+  .kpi .box span{color:var(--muted);font-size:12px}
+  .legend{color:var(--muted);font-size:12px;margin-top:10px}
+  footer{color:var(--muted);font-size:12px;padding:0 26px 30px}
+  code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">DukaanBench — results dashboard</h1>
+  <div class="sub" id="sub">Model × criterion results, per-rater breakdowns, and per-image detail.</div>
+  <div class="facts" id="facts"></div>
+</header>
+
+<div class="banner" id="banner"></div>
+
+<nav id="tabs">
+  <button data-tab="leader" class="active">Model leaderboard</button>
+  <button data-tab="raters">By rater</button>
+  <button data-tab="detail">Rater detail</button>
+  <button data-tab="prompts">Prompts</button>
+  <button data-tab="images">Images</button>
+</nav>
+
+<main>
+  <section id="leader" class="on">
+    <h2>Model leaderboard — all raters</h2>
+    <p class="hint">Mean of every rating the 10 participants gave to each model. Each model has
+      10 images; each image was rated by all 10 people, so n = 100 ratings per model.</p>
+    <div class="card"><table id="modelTable"></table></div>
+    <div class="kpi" id="leaderKpis"></div>
+  </section>
+
+  <section id="raters">
+    <h2>Each rater's own leaderboard</h2>
+    <p class="hint">One row per participant, showing the mean score they personally gave each
+      model. The <b class="best">green</b> cell is the model <em>that person</em> ranked first.
+      These ten columns do not agree with each other — that is the headline finding.</p>
+    <div class="card"><table id="raterMatrix"></table></div>
+  </section>
+
+  <section id="detail">
+    <h2>Rater detail</h2>
+    <p class="hint">Pick a participant to see exactly how they scored the three models, criterion
+      by criterion, against the group average.</p>
+    <div class="controls">
+      <label>Participant:
+        <select id="raterSel"></select>
+      </label>
+    </div>
+    <div class="card"><table id="raterDetail"></table></div>
+  </section>
+
+  <section id="prompts">
+    <h2>Prompt × model</h2>
+    <p class="hint">Mean overall per prompt. "Text?" marks prompts whose checklist requires a
+      string to appear; the no-text prompts measure surface quality only.</p>
+    <div class="controls">
+      <label><input type="checkbox" id="hideText" /> show only no-text prompts</label>
+    </div>
+    <div class="card"><table id="promptTable"></table></div>
+  </section>
+
+  <section id="images">
+    <h2>Every image, with its average score</h2>
+    <p class="hint">All 30 images, averaged across the 10 raters. Thumbnails load from
+      <code>../images/</code>.</p>
+    <div class="controls">
+      <label>Model: <select id="imgModel"><option value="">all</option></select></label>
+      <label>Prompt: <select id="imgPrompt"><option value="">all</option></select></label>
+      <label><input type="checkbox" id="imgWorst" /> worst-rated first</label>
+    </div>
+    <div class="grid" id="imgGrid"></div>
+  </section>
+</main>
+
+<footer id="footer"></footer>
+
+<script src="dashboard_data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DASH;
+  if (!D) { document.body.innerHTML = "<p style='padding:30px;color:#ff5d5d'>dashboard_data.js failed to load. Run build_dashboard_data.py.</p>"; return; }
+
+  var CR = D.criteria.map(function (c) { return c.id; });
+  var MODELS = D.models;
+  var MODEL_NAME = {};
+  MODELS.forEach(function (m) { MODEL_NAME[m.id] = m.name; });
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+    return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+  function mean(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+  function f2(v) { return v === null || v === undefined ? "—" : Number(v).toFixed(2); }
+
+  /* ---------- header ---------- */
+  var nRatings = D.ratings.length;
+  var nJudgements = nRatings * CR.length;
+  $("#title").textContent = D.eval_name + " — results dashboard";
+  $("#facts").innerHTML = [
+    ["Participants", D.raters.length],
+    ["Images", D.trials.length],
+    ["Models", MODELS.length],
+    ["Image ratings", nRatings],
+    ["Judgements", nJudgements],
+    ["Ratings / model", MODELS.length ? Math.round(nRatings / MODELS.length) : 0]
+  ].map(function (p) { return "<div><b>" + p[1] + "</b><span>" + p[0] + "</span></div>"; }).join("");
+
+  /* ---------- consistency (mean pairwise Pearson over shared images) ---------- */
+  function pearson(a, b) {
+    var n = a.length; if (n < 3) return null;
+    var ma = mean(a), mb = mean(b), num = 0, da = 0, db = 0;
+    for (var i = 0; i < n; i++) { var x = a[i] - ma, y = b[i] - mb; num += x * y; da += x * x; db += y * y; }
+    return (da && db) ? num / Math.sqrt(da * db) : null;
+  }
+  var byRater = {}, imgsByModel = {};
+  D.trials.forEach(function (t) { (imgsByModel[t.model] = imgsByModel[t.model] || []).push(t.trial_id); });
+  D.ratings.forEach(function (r) { (byRater[r.rater] = byRater[r.rater] || {})[r.trial_id] = r.overall; });
+  var raterNames = Object.keys(byRater);
+  var cors = [];
+  for (var i = 0; i < raterNames.length; i++) {
+    for (var j = i + 1; j < raterNames.length; j++) {
+      var shared = Object.keys(byRater[raterNames[i]]).filter(function (t) { return byRater[raterNames[j]][t] !== undefined; });
+      var c = pearson(shared.map(function (t) { return byRater[raterNames[i]][t]; }),
+                      shared.map(function (t) { return byRater[raterNames[j]][t]; }));
+      if (c !== null) cors.push(c);
+    }
+  }
+  var consistency = cors.length ? mean(cors) : null;
+  var posPairs = cors.filter(function (c) { return c > 0; }).length;
+
+  var bn = $("#banner");
+  if (consistency !== null && consistency < 0.5) {
+    bn.className = "banner";
+    bn.innerHTML = "<b>Run flagged — inter-rater consistency " + consistency.toFixed(3) +
+      "</b> (" + posPairs + "/" + cors.length + " pairs even positive). Below the 0.5 bar set before collection, " +
+      "so the leaderboard is <b>not publishable as a ranking</b>. Every table below is still shown, " +
+      "because the per-criterion trade-offs are real even when the overall means are not separable.";
+  } else {
+    bn.className = "banner ok";
+    bn.textContent = "Inter-rater consistency " + (consistency === null ? "—" : consistency.toFixed(3)) + ".";
+  }
+
+  /* ---------- aggregates ---------- */
+  function groupBy(list, key) {
+    var o = {}; list.forEach(function (x) { (o[x[key]] = o[x[key]] || []).push(x); }); return o;
+  }
+  var byModel = groupBy(D.ratings, "model");
+  var modelStats = MODELS.map(function (m) {
+    var rows = byModel[m.id] || [];
+    var st = { model: m.id, name: m.name, n: rows.length };
+    CR.forEach(function (c) { st[c] = mean(rows.map(function (r) { return r[c]; })); });
+    st.overall = mean(rows.map(function (r) { return r.overall; }));
+    return st;
+  });
+
+  /* ---------- Tab 1: leaderboard ---------- */
+  (function () {
+    var best = {};
+    CR.concat(["overall"]).forEach(function (k) {
+      var vals = modelStats.map(function (s) { return s[k]; });
+      best[k] = Math.max.apply(null, vals);
+    });
+    var h = "<thead><tr><th>Model</th><th class='num'>n</th>";
+    D.criteria.forEach(function (c) { h += "<th class='num'>" + esc(c.name) + "</th>"; });
+    h += "<th class='num'>Overall</th><th>Overall bar</th></tr></thead><tbody>";
+    modelStats.forEach(function (s) {
+      h += "<tr><td>" + esc(s.name) + "</td><td class='num'>" + s.n + "</td>";
+      D.criteria.forEach(function (c) {
+        var v = s[c.id], b = (v === best[c.id]) ? " best" : "";
+        h += "<td class='num" + b + "'>" + f2(v) + "</td>";
+      });
+      h += "<td class='num" + (s.overall === best.overall ? " best" : "") + "'>" + f2(s.overall) + "</td>";
+      h += "<td><div class='bar'><i style='width:" + (s.overall / 5 * 100).toFixed(1) + "%'></i></div></td></tr>";
+    });
+    h += "</tbody>";
+    $("#modelTable").innerHTML = h;
+
+    var sorted = modelStats.slice().sort(function (a, b) { return b.overall - a.overall; });
+    var spread = (Math.max.apply(null, modelStats.map(function (s) { return s.overall; })) -
+                  Math.min.apply(null, modelStats.map(function (s) { return s.overall; })));
+    $("#leaderKpis").innerHTML = [
+      ["Top overall", sorted[0].name.replace("Google — ", ""), f2(sorted[0].overall)],
+      ["Spread across models", "not separable", spread.toFixed(2) + " pts"],
+      ["Consistency", (cors.length + " pairs"), consistency === null ? "—" : consistency.toFixed(3)]
+    ].map(function (k) {
+      return "<div class='box'><span>" + k[0] + "</span><br><b>" + esc(k[1]) + "</b><span>" + k[2] + "</span></div>";
+    }).join("");
+  })();
+
+  /* ---------- Tab 2: rater × model matrix ---------- */
+  var raterModelMean = {};
+  D.ratings.forEach(function (r) {
+    raterModelMean[r.rater] = raterModelMean[r.rater] || {};
+    (raterModelMean[r.rater][r.model] = raterModelMean[r.rater][r.model] || []).push(r.overall);
+  });
+  function raterRow(name) {
+    var o = raterModelMean[name] || {}, vals = MODELS.map(function (m) { return mean(o[m.id] || []); });
+    var mx = Math.max.apply(null, vals.filter(function (v) { return v !== null; }).concat([-1]));
+    return { name: name, vals: vals, best: mx };
+  }
+  var raterRows = raterNames.map(raterRow);
+
+  (function () {
+    var h = "<thead><tr><th>Rater</th>";
+    MODELS.forEach(function (m) { h += "<th class='num'>" + esc(m.name.replace("Google — ", "")) + "</th>"; });
+    h += "<th class='num'>Their mean</th><th>Top pick</th></tr></thead><tbody>";
+    raterRows.forEach(function (r) {
+      var topIdx = r.vals.indexOf(r.best);
+      h += "<tr class='click' data-rater='" + esc(r.name) + "'><td>" + esc(r.name) + "</td>";
+      r.vals.forEach(function (v) {
+        h += "<td class='num" + (v === r.best ? " best" : "") + "'>" + f2(v) + "</td>";
+      });
+      var all = D.ratings.filter(function (x) { return x.rater === r.name; }).map(function (x) { return x.overall; });
+      h += "<td class='num'>" + f2(mean(all)) + "</td>";
+      h += "<td>" + (topIdx >= 0 ? esc(MODELS[topIdx].name.replace("Google — ", "")) : "—") + "</td></tr>";
+    });
+    h += "</tbody>";
+    $("#raterMatrix").innerHTML = h;
+    Array.prototype.forEach.call(document.querySelectorAll("#raterMatrix tr.click"), function (tr) {
+      tr.addEventListener("click", function () {
+        $("#raterSel").value = tr.getAttribute("data-rater");
+        showTab("detail"); renderDetail();
+      });
+    });
+  })();
+
+  /* ---------- Tab 3: rater detail ---------- */
+  var sel = $("#raterSel");
+  raterNames.forEach(function (n) {
+    var o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o);
+  });
+  function renderDetail() {
+    var name = sel.value;
+    var rows = D.ratings.filter(function (r) { return r.rater === name; });
+    var group = D.ratings;
+    var h = "<thead><tr><th>Model</th><th class='num'>n</th>";
+    D.criteria.forEach(function (c) { h += "<th class='num'>" + esc(c.name) + "</th>"; });
+    h += "<th class='num'>Overall</th></tr></thead><tbody>";
+    MODELS.forEach(function (m) {
+      var mine = rows.filter(function (r) { return r.model === m.id; });
+      var all = group.filter(function (r) { return r.model === m.id; });
+      h += "<tr><td>" + esc(m.name) + "</td><td class='num'>" + mine.length + "</td>";
+      D.criteria.forEach(function (c) {
+        var mv = mean(mine.map(function (r) { return r[c]; }));
+        var av = mean(all.map(function (r) { return r[c]; }));
+        var diff = (mv !== null && av !== null) ? (mv - av) : null;
+        h += "<td class='num'>" + f2(mv) +
+             (diff === null ? "" : " <span class='pill' style='color:" +
+              (diff >= 0 ? "#3ddc84" : "#ff5d5d") + "'>" + (diff >= 0 ? "+" : "") + diff.toFixed(2) + "</span>") + "</td>";
+      });
+      h += "<td class='num'>" + f2(mean(mine.map(function (r) { return r.overall; }))) + "</td></tr>";
+    });
+    h += "</tbody>";
+    $("#raterDetail").innerHTML = h;
+  }
+  sel.addEventListener("change", renderDetail);
+
+  /* ---------- Tab 4: prompts ---------- */
+  // prompts whose checklist requires a string: P1,P2,P5,P6,P9 (the rest are no-text)
+  var TEXT_PROMPTS = { P1: 1, P2: 1, P5: 1, P6: 1, P9: 1 };
+  function renderPrompts() {
+    var onlyNoText = $("#hideText").checked;
+    var h = "<thead><tr><th>Prompt</th><th>Axis</th><th>Text?</th>";
+    MODELS.forEach(function (m) { h += "<th class='num'>" + esc(m.name.replace("Google — ", "")) + "</th>"; });
+    h += "<th class='num'>Spread</th></tr></thead><tbody>";
+    D.prompts.forEach(function (p) {
+      var isText = !!TEXT_PROMPTS[p.id];
+      if (onlyNoText && isText) return;
+      h += "<tr><td><b>" + esc(p.id) + "</b></td><td>" + esc(p.axis) + "</td><td>" +
+           (isText ? "yes" : "<span class='pill'>no</span>") + "</td>";
+      var vals = MODELS.map(function (m) {
+        var rs = D.ratings.filter(function (r) { return r.prompt_id === p.id && r.model === m.id; });
+        return mean(rs.map(function (r) { return r.overall; }));
+      });
+      var mx = Math.max.apply(null, vals);
+      vals.forEach(function (v) { h += "<td class='num" + (v === mx ? " best" : "") + "'>" + f2(v) + "</td>"; });
+      h += "<td class='num'>" + (Math.max.apply(null, vals) - Math.min.apply(null, vals)).toFixed(2) + "</td></tr>";
+    });
+    h += "</tbody>";
+    $("#promptTable").innerHTML = h;
+  }
+  $("#hideText").addEventListener("change", renderPrompts);
+  renderPrompts();
+
+  /* ---------- Tab 5: images ---------- */
+  var imSel = $("#imgModel"), ipSel = $("#imgPrompt");
+  MODELS.forEach(function (m) { var o = document.createElement("option"); o.value = m.id; o.textContent = m.name; imSel.appendChild(o); });
+  D.prompts.forEach(function (p) { var o = document.createElement("option"); o.value = p.id; o.textContent = p.id + " — " + p.axis; ipSel.appendChild(o); });
+
+  function imgAvg(trialId) {
+    return mean(D.ratings.filter(function (r) { return r.trial_id === trialId; }).map(function (r) { return r.overall; }));
+  }
+  function renderImages() {
+    var mv = imSel.value, pv = ipSel.value;
+    var list = D.trials.filter(function (t) { return (!mv || t.model === mv) && (!pv || t.prompt_id === pv); });
+    list.forEach(function (t) { t._avg = imgAvg(t.trial_id); });
+    if ($("#imgWorst").checked) list.sort(function (a, b) { return a._avg - b._avg; });
+    $("#imgGrid").innerHTML = list.map(function (t) {
+      var v = t._avg;
+      var col = v >= 4 ? "#3ddc84" : v >= 3.5 ? "#e6edf3" : "#f5a623";
+      return "<div class='img'><img loading='lazy' src='" + esc(t.image) + "' alt='" + esc(t.trial_id) + "'>" +
+        "<div class='meta'><span class='sc' style='color:" + col + "'>" + f2(v) + "</span>" +
+        "<div><b>" + esc(t.trial_id) + "</b></div>" +
+        "<div class='m'>" + esc(t.axis) + " · avg of 10 raters</div></div></div>";
+    }).join("");
+  }
+  imSel.addEventListener("change", renderImages);
+  ipSel.addEventListener("change", renderImages);
+  $("#imgWorst").addEventListener("change", renderImages);
+  renderImages();
+
+  /* ---------- tabs ---------- */
+  function showTab(id) {
+    Array.prototype.forEach.call(document.querySelectorAll("nav button"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-tab") === id);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("main section"), function (s) {
+      s.classList.toggle("on", s.id === id);
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("nav button"), function (b) {
+    b.addEventListener("click", function () { showTab(b.getAttribute("data-tab")); });
+  });
+
+  /* ---------- footer ---------- */
+  $("#footer").innerHTML =
+    "DukaanBench · " + D.raters.length + " raters · " + D.trials.length + " images · " +
+    nJudgements + " judgements · consistency " + (consistency === null ? "—" : consistency.toFixed(3)) +
+    " · generated by <code>build_dashboard_data.py</code>";
+})();
+</script>
+</body>
+</html>

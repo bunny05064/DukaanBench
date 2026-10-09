@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DukaanBench — manual image generation kit</title>
+<style>
+  :root { --bg:#0f1115; --card:#171a21; --line:#2a2f3a; --txt:#e6e8ee; --mut:#98a1b3; --acc:#ffb454; --ok:#3fb950; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  header { padding:26px 22px 10px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:22px; }
+  h2 { font-size:15px; text-transform:uppercase; letter-spacing:.08em; color:var(--mut); margin:0 0 10px; }
+  .sub { color:var(--mut); font-size:13.5px; max-width:900px; }
+  main { padding:20px 22px 80px; max-width:1000px; }
+  .steps { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:18px 0 26px; }
+  .steps ol { margin:0; padding-left:20px; } .steps li { margin:7px 0; }
+  code { background:#0b0d11; border:1px solid var(--line); padding:1px 5px; border-radius:4px; font-size:13px; }
+  .modelbar { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 6px; }
+  .model { background:var(--card); border:1px solid var(--line); border-radius:9px; padding:10px 13px; font-size:13.5px; }
+  .model b { display:block; font-size:14.5px; }
+  .prog { position:sticky; top:0; background:var(--bg); padding:10px 0; z-index:5; border-bottom:1px solid var(--line); margin-bottom:14px; }
+  .bar { height:8px; background:#22262f; border-radius:6px; overflow:hidden; margin-top:6px; }
+  .bar i { display:block; height:100%; width:0; background:linear-gradient(90deg,#ffb454,#3fb950); transition:width .3s; }
+  .p { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:15px 16px; margin:14px 0; }
+  .p.done { border-color:#2ea04355; }
+  .ptop { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .id { background:#2b303b; border-radius:5px; padding:2px 8px; font-weight:600; font-size:13px; }
+  .axis { color:var(--acc); font-size:13px; }
+  .req { margin-left:auto; font-size:12.5px; color:var(--mut); }
+  textarea { width:100%; margin-top:10px; background:#0b0d11; color:var(--txt); border:1px solid var(--line);
+             border-radius:8px; padding:11px; font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; resize:vertical; }
+  .btns { display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; }
+  button, .filelabel { background:#232833; color:var(--txt); border:1px solid var(--line); border-radius:7px;
+              padding:7px 13px; font-size:13px; cursor:pointer; }
+  button:hover, .filelabel:hover { border-color:#4a5162; }
+  button.copy { background:#2b303b; }
+  .drop { border:1.5px dashed #3a4152; border-radius:8px; padding:11px; margin-top:10px; color:var(--mut);
+          font-size:13px; text-align:center; }
+  .drop.hot { border-color:var(--acc); color:var(--acc); background:#ffb45410; }
+  .fname { font-family:ui-monospace,Menlo,monospace; font-size:12.5px; color:#8ab4f8; }
+  .must { font-size:13px; color:var(--mut); margin-top:8px; }
+  .must b { color:var(--txt); }
+  .tag { display:inline-block; font-size:11.5px; border:1px solid var(--line); border-radius:20px; padding:1px 8px; color:var(--mut); margin-right:5px; }
+  .ok { color:var(--ok); font-weight:600; }
+  .note { background:#2a231155; border:1px solid #6b541655; border-left:3px solid var(--acc); padding:12px 14px; border-radius:8px; margin:16px 0; font-size:13.5px; }
+  footer { color:var(--mut); font-size:12.5px; padding:10px 22px 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>DukaanBench — manual image generation kit</h1>
+  <div class="sub">
+    Generate <b>10 prompts × 3 models = 30 images</b> by hand in Google AI Studio (free, no billing),
+    drop each result into the card below, and this page will save it with the exact filename the
+    evaluation pipeline expects. Nothing leaves your browser.
+  </div>
+</header>
+
+<main>
+  <div class="steps">
+    <h2>How to run it (about 25–35 minutes)</h2>
+    <ol>
+      <li>Open <a style="color:#8ab4f8" href="https://aistudio.google.com/" target="_blank">aistudio.google.com</a> → <b>Chat</b> (or <b>Generate Media</b>).</li>
+      <li>At the top, pick the model: start with <b>Gemini 3.1 Flash Image Preview</b>. Keep the aspect ratio at <b>1:1 (Square)</b> if the option appears.</li>
+      <li>Press <b>Copy prompt</b> on a card below → paste into AI Studio → <b>Run</b>.</li>
+      <li>Right-click the generated image → <b>Save image as…</b>, or simply <b>drag the image onto the dashed box</b> in the card. This page renames it correctly and downloads it.</li>
+      <li>Move the downloaded file into <code>JoshTalks-Eval-Challenge/q1_eval/images/</code>.</li>
+      <li>Repeat for all 10 prompts, then switch the model and repeat twice more.</li>
+      <li>Take <b>2–3 screenshots</b> of the AI Studio screen (model name visible + image) into
+          <code>q1_eval/metadata/screenshots/</code> — that is our proof of generation.</li>
+      <li>When finished, press <b>Download manifest</b> and save it as
+          <code>q1_eval/metadata/manual_manifest.json</code>.</li>
+    </ol>
+  </div>
+
+  <div class="modelbar">
+    <div class="model"><b>Google — Gemini 3.1 Flash Image Preview</b> required by brief · <code>gemini-3.1-flash-image-preview</code></div>
+    <div class="model"><b>Google — Gemini 2.5 Flash Image</b> required by brief · <code>gemini-2.5-flash-image</code></div>
+    <div class="model"><b>Google — Gemini 3 Pro Image</b> added by us · <code>gemini-3-pro-image</code></div>
+  </div>
+
+  <div class="note">
+    <b>Why no OpenAI image?</b> The brief requires OpenAI GPT Image 1 as well. We had no OpenAI API key,
+    and this machine's Gemini project has no billing (image API quota = 0), so nothing could be called
+    programmatically. GPT Image 1 stays a <b>documented gap</b> with a ready-to-run script
+    (<code>q1_eval/generate.py</code>); if you get an <code>OPENAI_API_KEY</code>, run
+    <code>python3 q1_eval/generate.py --only P1</code> to confirm, then the full command.
+  </div>
+
+  <div class="prog">
+    <b id="progTxt">0 / 30 images done</b>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="btns" style="margin-top:9px">
+      <button onclick="downloadManifest()">Download manifest (manual_manifest.json)</button>
+      <button onclick="if(confirm('Reset all progress?')){localStorage.removeItem(KEY);location.reload()}">Reset progress</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+</main>
+
+<footer>Local-only tool for the Josh Talks AI hiring challenge. Progress is stored in this browser's localStorage.</footer>
+
+<script>
+const PROMPTS = [
+ {id:"P1",axis:"Devanagari text rendering",text:"Square 1:1 promotional product image for an Indian online seller. A clean studio product photo of a neatly folded red cotton kurti on a plain warm-white background, soft daylight, subtle shadow. Put a saffron circular discount badge in the top-right corner containing exactly this text in Devanagari script: 50% छूट. Put the price exactly as ₹799 in bold black text at the bottom-left. Minimal, modern, ready to post on a marketplace listing.",must:"50% छूट · ₹799 · folded red kurti · badge top-right · price bottom-left"},
+ {id:"P2",axis:"Latin text + rupee price",text:"Square 1:1 promotional product image for an Indian online seller. A clean studio product photo of a pair of white wireless earbuds in an open charging case on a light grey surface, soft daylight. Put a black offer ribbon in the top-left corner containing exactly this text: FLAT 30% OFF. Put the price exactly as ₹1,299 in bold text at the bottom-right. Minimal, modern, ready to post on a marketplace listing.",must:"FLAT 30% OFF · ₹1,299 · earbuds in case · ribbon top-left · price bottom-right"},
+ {id:"P3",axis:"Object count fidelity",text:"Square 1:1 product image for an Indian sweet shop's online catalogue. A brass plate on a dark wooden table holding exactly 6 modaks arranged in two rows of three, warm evening light, shallow depth of field, appetising and clean. No text anywhere in the image.",must:"exactly 6 modaks · two rows of three · brass plate · dark wooden table · no text"},
+ {id:"P4",axis:"Indian human subject + specific detail",text:"Square 1:1 lifestyle product photo for an Indian jewellery seller. A young Indian woman with a red bindi and gold jhumka earrings, wearing a mustard-yellow saree, holding a small lit clay diya in her right hand, warm indoor evening light, plain deep-red background. She is smiling slightly at the camera. No text anywhere in the image.",must:"Indian woman · red bindi · gold jhumka · mustard saree · diya in RIGHT hand · deep-red bg · no text"},
+ {id:"P5",axis:"Packaged food product + Devanagari label",text:"Square 1:1 packshot for an Indian grocery brand. A rectangular cardboard packet of rajma standing upright on a plain cream background, the packet design in warm red and cream with a window showing red kidney beans, soft even studio light. The packet must show exactly this text: राजमा 500g. No other text anywhere in the image.",must:"राजमा 500g only · cardboard packet · cream bg · kidney beans visible"},
+ {id:"P6",axis:"Festival creative",text:"Square 1:1 Diwali greeting creative for an Indian small business WhatsApp catalogue. A warm, glowing scene of decorated clay diyas and marigold flowers on a dark wooden surface, soft bokeh, rich gold and orange tones. Include a subtle text overlay containing exactly this phrase in Devanagari script: शुभ दीपावली. Keep it elegant and uncluttered.",must:"शुभ दीपावली · clay diyas · marigold · dark wood · gold-orange tones"},
+ {id:"P7",axis:"Indian retail setting",text:"Square 1:1 photograph for an Indian kirana store's WhatsApp business catalogue. The inside shelf of a small Indian neighbourhood kirana shop, packed with sachets, masala packets, biscuits and jars, a steel weighing scale on the counter, natural daylight from the shop front, realistic and slightly busy. No readable text anywhere in the image.",must:"kirana shelf · sachets/masala · steel scale · daylight · no readable text"},
+ {id:"P8",axis:"Regional Indian product",text:"Square 1:1 e-commerce product photo of a pair of Kolhapuri leather chappals, tan brown with traditional braided toe loop, placed side by side on a plain off-white background, soft studio light, crisp shadow, catalogue ready. No text anywhere in the image.",must:"pair of Kolhapuri chappals · tan brown · braided toe loop · off-white bg · no text"},
+ {id:"P9",axis:"Multi-line text card (hardest)",text:"Square 1:1 Instagram post card for an Indian clothing store. A soft pastel-peach background with a neatly folded blue denim jacket in the lower half. In the upper half put exactly three lines of text: NEW ARRIVALS, Flat ₹499 Only, Sale ends Sunday. Clean modern sans-serif typography, centred, generous margins.",must:"NEW ARRIVALS · Flat ₹499 Only · Sale ends Sunday · folded denim jacket · peach bg"},
+ {id:"P10",axis:"No-text control (pure image quality)",text:"Square 1:1 hero product shot for an Indian homeware store. An ornate hand-painted brass diya with a small flame, on a polished dark stone surface, dramatic side light, deep shadows, luxurious and premium feel. No text anywhere in the image.",must:"brass diya · flame · dark stone · dramatic side light · no text"}
+];
+const MODELS = [
+  {co:"Google", name:"Gemini 3.1 Flash Image Preview", id:"gemini-3.1-flash-image-preview", required:true},
+  {co:"Google", name:"Gemini 2.5 Flash Image",        id:"gemini-2.5-flash-image",        required:true},
+  {co:"Google", name:"Gemini 3 Pro Image",            id:"gemini-3-pro-image",            required:false}
+];
+const KEY = "dukaanbench-progress-v1";
+let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const fname = (p,m) => `${p.id}__${slug(m.co)}__${slug(m.name)}.png`;
+
+const list = document.getElementById("list");
+PROMPTS.forEach(p => {
+  const card = document.createElement("div");
+  card.className = "p"; card.id = "card-"+p.id;
+  card.innerHTML = `
+    <div class="ptop">
+      <span class="id">${p.id}</span><span class="axis">${p.axis}</span>
+      <span class="req">${MODELS.map(m=>`<span class="tag">${m.required?"required":"added"}</span>`).join("")}</span>
+    </div>
+    <textarea id="t-${p.id}" rows="5" readonly></textarea>
+    <div class="btns">
+      <button class="copy" onclick="copyP('${p.id}')">Copy prompt</button>
+      <button onclick="dlTxt('${p.id}')">Download as .txt</button>
+    </div>
+    <div class="must"><b>Must contain:</b> ${p.must}</div>
+    ${MODELS.map(m=>`
+      <div class="drop" id="d-${p.id}-${m.id}" data-p="${p.id}" data-m="${m.id}">
+        Drop the <b>${m.name}</b> image here &nbsp;→&nbsp; saves as <span class="fname">${fname(p,m)}</span>
+        <div style="margin-top:7px">
+          <input type="file" accept="image/*" style="display:none" id="f-${p.id}-${m.id}"
+                 onchange="handleFile('${p.id}','${m.id}',this.files[0])">
+          <label class="filelabel" for="f-${p.id}-${m.id}">…or choose file</label>
+          <span id="s-${p.id}-${m.id}"></span>
+        </div>
+      </div>`).join("")}
+    `;
+  list.appendChild(card);
+  card.querySelector("textarea").value = p.text;
+});
+
+function copyP(id){
+  const ta = document.getElementById("t-"+id);
+  ta.select(); ta.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(ta.value).then(()=>flash(event.target,"Copied ✓"));
+}
+function dlTxt(id){
+  const p = PROMPTS.find(x=>x.id===id);
+  dl(new Blob([p.text],{type:"text/plain"}), id+"__prompt.txt");
+}
+function handleFile(pid, mid, file){
+  if(!file) return;
+  const p = PROMPTS.find(x=>x.id===pid), m = MODELS.find(x=>x.id===mid);
+  const fr = new FileReader();
+  fr.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // re-encode to PNG under the canonical name
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext("2d").drawImage(img,0,0);
+      c.toBlob(b => { dl(b, fname(p,m)); mark(pid,mid); }, "image/png");
+    };
+    img.src = e.target.result;
+  };
+  fr.readAsDataURL(file);
+}
+function dl(blob, name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 400);
+}
+function flash(btn, txt){ if(!btn) return; const o=btn.textContent; btn.textContent=txt;
+  setTimeout(()=>btn.textContent=o,1200); }
+function mark(pid,mid){
+  state[pid+"|"+mid] = {done:true, at:new Date().toISOString()};
+  save(); render();
+}
+document.addEventListener("dragover", e => {
+  const d = e.target.closest(".drop"); if(d){ e.preventDefault(); d.classList.add("hot"); }
+});
+document.addEventListener("dragleave", e => { const d=e.target.closest(".drop"); if(d) d.classList.remove("hot"); });
+document.addEventListener("drop", e => {
+  const d = e.target.closest(".drop"); if(!d) return;
+  e.preventDefault(); d.classList.remove("hot");
+  if(e.dataTransfer.files[0]) handleFile(d.dataset.p, d.dataset.m, e.dataTransfer.files[0]);
+});
+function render(){
+  let done = 0;
+  MODELS.forEach(m => PROMPTS.forEach(p => {
+    const k = p.id+"|"+m.id, s = document.getElementById("s-"+p.id+"-"+m.id);
+    if(state[k]) { done++; if(s) s.innerHTML = '<span class="ok">✓ saved</span>'; }
+    else if(s) s.textContent = "";
+  }));
+  document.getElementById("progTxt").textContent = `${done} / 30 images done`;
+  document.getElementById("progBar").style.width = (done/30*100)+"%";
+  PROMPTS.forEach(p => {
+    const any = MODELS.some(m=>state[p.id+"|"+m.id]);
+    document.getElementById("card-"+p.id).classList.toggle("done", any);
+  });
+}
+function downloadManifest(){
+  const images = [];
+  MODELS.forEach(m => PROMPTS.forEach(p => {
+    const k = p.id+"|"+m.id;
+    if(state[k]) images.push({
+      file: "images/"+fname(p,m), prompt_id:p.id, axis:p.axis,
+      company:m.co, model:m.name, model_id:m.id, prompt_text:p.text,
+      where_generated:"Google AI Studio web UI (aistudio.google.com), manual generation",
+      settings:"1:1 square aspect ratio, default sampling, no style/negative prompt",
+      generated_at: state[k].at, generation_status:"manual"
+    });
+  }));
+  dl(new Blob([JSON.stringify({
+    eval_name:"DukaanBench", generated_by:"manual AI Studio run",
+    total_expected:30, total_captured:images.length, images
+  },null,2)],{type:"application/json"}), "manual_manifest.json");
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DukaanBench — Human rating sheet</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel2: #1e222b; --line: #2a2f3a;
+    --text: #e8eaf0; --muted: #9aa3b2; --accent: #ff8a3d; --ok: #3ddc84;
+    --bad: #ff5d5d; --warn: #ffd166;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 26px 0 8px; }
+  h3 { font-size: 15px; margin: 18px 0 6px; color: var(--accent); }
+  p, li { color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 14px 0; }
+  .hidden { display: none !important; }
+  label { display: block; margin: 10px 0 4px; color: var(--text); font-weight: 600; }
+  input[type=text], input[type=email], textarea, select {
+    width: 100%; padding: 9px 11px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; font: inherit;
+  }
+  textarea { min-height: 62px; resize: vertical; }
+  .consent-row { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0; color: var(--text); }
+  .consent-row input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+  .consent-row span { color: var(--muted); font-weight: 400; }
+  button {
+    background: var(--accent); color: #16130f; border: 0; border-radius: 9px;
+    padding: 11px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  button.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--line); font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .topbar {
+    position: sticky; top: 0; z-index: 5; background: rgba(15,17,21,.96);
+    border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex;
+    gap: 14px; align-items: center; justify-content: space-between;
+  }
+  .prog { flex: 1; height: 8px; background: var(--panel2); border-radius: 99px; overflow: hidden; }
+  .prog > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+  .pill { background: var(--panel2); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .pill b { color: var(--text); }
+  .grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .shot { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 10px; text-align: center; }
+  .shot img { max-width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto; }
+  .promptbox {
+    background: #10131a; border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 11px 13px; color: var(--text); font-size: 14px; white-space: pre-wrap;
+  }
+  .chips { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 11.5px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); border-radius: 99px; padding: 2px 9px; }
+  .crit { border-top: 1px solid var(--line); padding: 12px 0 6px; }
+  .crit:first-of-type { border-top: 0; }
+  .crit .nm { font-weight: 700; }
+  .crit .df { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+  .likert { display: flex; gap: 6px; flex-wrap: wrap; }
+  .likert label {
+    flex: 1 1 0; min-width: 96px; margin: 0; font-weight: 500; font-size: 12.5px;
+    text-align: center; background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 5px; cursor: pointer; color: var(--muted);
+  }
+  .likert input { display: none; }
+  .likert label.on { background: rgba(255,138,61,.16); border-color: var(--accent); color: var(--text); }
+  .likert label:hover { border-color: var(--accent); }
+  .note { font-size: 13px; color: var(--warn); margin-top: 8px; }
+  .err { color: var(--bad); font-size: 13px; min-height: 18px; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; }
+  th { background: var(--panel2); }
+  .leader td:not(:first-child) { text-align: right; }
+  .num { font-variant-numeric: tabular-nums; }
+  footer { color: var(--muted); font-size: 12.5px; margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar hidden" id="topbar">
+  <div class="pill">DukaanBench</div>
+  <div class="prog"><i id="progfill"></i></div>
+  <div class="pill">Rater <b id="raterName">—</b></div>
+  <div class="pill"><b id="doneCount">0</b>/<span id="nTrialsTop">30</span> rated</div>
+  <button class="secondary" id="btnExportTop">Export</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ CONSENT ============ -->
+  <section id="screenConsent">
+    <h1>DukaanBench — human rating sheet</h1>
+    <p>A text-to-image evaluation for Indian e-commerce product creatives.
+       You will look at <b id="nTrialsIntro">30</b> images and rate each on 5 criteria. It takes about 20–25 minutes.</p>
+
+    <div class="card">
+      <h3>1. Who you are</h3>
+      <label>Display name (used in the rater table, no account needed)</label>
+      <input type="text" id="cName" placeholder="e.g. Ravi K." autocomplete="off" />
+      <label>Email (required — used only to match your export to you)</label>
+      <input type="email" id="cEmail" placeholder="you@example.com" autocomplete="off" />
+      <label>Age in years (required — brief requires 18+)</label>
+      <input type="number" id="cAge" min="18" max="100" placeholder="e.g. 26" autocomplete="off" />
+      <label>Do you read/understand Devanagari (Hindi) script?</label>
+      <select id="cDev">
+        <option>Yes, fluently</option>
+        <option>Partially</option>
+        <option>No</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h3>2. What you are consenting to</h3>
+      <div class="consent-row">
+        <input type="checkbox" id="g1" />
+        <label for="g1">Consent statement (verbatim from the brief)
+          <span>I confirm that I am 18 years or older. I voluntarily participated in this evaluation.
+          I consent to my name, email, and responses/ratings being included in this assignment
+          submission for hiring evaluation purposes.</span></label>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="g2" />
+        <label for="g2">I understand my ratings are stored only in this browser until I export them.
+          <span>The file stays on my machine; I choose whether to send it to the researcher.</span></label>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="g3" />
+        <label for="g3">I can stop at any time, and I am not being paid or graded for taking part.</label>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="g4" />
+        <label for="g4">I have read the instructions: rate each image on all 5 criteria before moving on.</label>
+      </div>
+      <div class="err" id="consentErr"></div>
+      <div class="btnrow">
+        <button id="btnStart" disabled>Start rating</button>
+        <button class="secondary" id="btnResume">Resume a previous session</button>
+      </div>
+      <p class="note">Tip: open this file with a local server if your browser blocks images
+        (<code>python3 -m http.server</code> in <code>q1_eval/rating_ui/</code>), or simply
+        double-click the file — relative image paths work either way.</p>
+    </div>
+  </section>
+
+  <!-- ============ TRIALS ============ -->
+  <section id="screenTrials" class="hidden">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="pill" style="display:inline-block">Prompt <b id="tPromptId">P1</b></div>
+          <div class="pill" style="display:inline-block;margin-left:6px">Axis: <b id="tAxis"></b></div>
+          <div class="pill" style="display:inline-block;margin-left:6px">Trial <b id="tIndex">1</b>/<span id="nTrialsTrial">30</span></div>
+        </div>
+        <div>
+          <button class="secondary" id="btnPrev">← Previous</button>
+          <button class="secondary" id="btnSkip">Skip</button>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:14px">
+        <div>
+          <div class="shot">
+            <img id="tImage" alt="generated product image" />
+          </div>
+          <div class="note" id="imgErr" style="display:none;text-align:center">
+            Image failed to load — check that <code>rating_ui/data.js</code> and
+            <code>../images/</code> are sitting next to this file.
+          </div>
+        </div>
+
+        <div>
+          <div class="promptbox" id="tPrompt"></div>
+          <div class="chips" id="tMust"></div>
+
+          <div style="margin-top:14px">
+            <label style="margin-top:6px">Quick check — is the image usable at all?</label>
+            <div class="likert" id="tUsable">
+              <label><input type="radio" name="usable" value="2" /><span>Yes, looks fine</span></label>
+              <label><input type="radio" name="usable" value="1" /><span>Partial / odd</span></label>
+              <label><input type="radio" name="usable" value="0" /><span>No — refused, blank, or broken</span></label>
+            </div>
+          </div>
+
+          <div id="critList"></div>
+
+          <label>Optional comment (what exactly went right or wrong)</label>
+          <textarea id="tComment" placeholder="e.g. badge text says 50% छूट correctly, but price is bottom-RIGHT not bottom-left."></textarea>
+          <div class="err" id="trialErr"></div>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button id="btnSaveNext">Save &amp; next →</button>
+        <button class="secondary" id="btnExport">Export results</button>
+        <button class="secondary" id="btnBack">← Consent screen</button>
+      </div>
+      <div class="note" id="autosave">Autosaved locally.</div>
+    </div>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section id="screenDone" class="hidden">
+    <h1>Thank you</h1>
+    <div class="card">
+      <p id="doneSummary"></p>
+      <div class="btnrow">
+        <button id="btnExportFinal">Download ratings (JSON)</button>
+        <button class="secondary" id="btnExportCsv">Download ratings (CSV)</button>
+        <button class="secondary" id="btnRestart">Start over</button>
+      </div>
+      <p class="note">Send the downloaded file to the researcher however you like.
+        Nothing has left this browser.</p>
+    </div>
+
+    <h2>Results — run #1 (10 raters, 1,500 judgements)</h2>
+    <div class="card">
+      <p>Produced by <code>q1_eval/rate_results/aggregate.py</code> from all 10 raters'
+         exports, embedded here so it renders offline. Scores are the mean of all raters'
+         1–5 scores per criterion, plus an overall mean. The "consistency" column is how
+         much raters agreed with each other (1 = identical, 0 = split) — and in run #1 it came
+         back <b>0.007</b>, so the ranking below is deliberately flagged as not publishable.</p>
+      <div class="leader">
+        <table id="leaderTable"><thead><tr>
+          <th>Model</th><th>Prompt adherence</th><th>Product fidelity</th>
+          <th>Text accuracy</th><th>India fit</th><th>Visual quality</th><th>Overall</th><th>Consistency</th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+      <p class="note" id="leaderNote">No aggregated results loaded yet.</p>
+    </div>
+  </section>
+
+  <footer>
+    DukaanBench · text-to-image eval for Indian e-commerce creatives ·
+    <span id="nTrialsFooter">10 prompts × 3 models = 30 images</span> · 5 criteria, 1–5 scale ·
+    Results stay in this browser until you export them.
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.EVAL_DATA;
+  var KEY = "dukaanbench_v1";
+  var state = null;
+
+  function blank() {
+    return { consent: null, order: [], idx: 0, ratings: {}, startedAt: Date.now() };
+  }
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; }
+  }
+  function save() {
+    localStorage.setItem(KEY, JSON.stringify(state));
+    var el = document.getElementById("autosave");
+    if (el) { el.textContent = "Autosaved locally at " + new Date().toLocaleTimeString(); }
+  }
+
+  /* deterministic shuffle so each rater gets a reproducible order */
+  function seedFrom(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mulberry(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function shuffled(arr, seed) {
+    var r = mulberry(seed), a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function show(which) {
+    ["screenConsent", "screenTrials", "screenDone"].forEach(function (id) {
+      document.getElementById(id).classList.toggle("hidden", id !== which);
+    });
+    document.getElementById("topbar").classList.toggle("hidden", which !== "screenTrials");
+  }
+
+  function doneCount() {
+    var n = 0;
+    for (var k in state.ratings) {
+      var r = state.ratings[k];
+      if (r && r.usable !== null && r.scores && r.scores.__complete) n++;
+    }
+    return n;
+  }
+
+  function updateProgress() {
+    var n = doneCount();
+    document.getElementById("doneCount").textContent = n;
+    document.getElementById("progfill").style.width = (100 * n / D.trials.length) + "%";
+  }
+
+  function buildCriteria() {
+    var host = document.getElementById("critList");
+    host.innerHTML = "";
+    D.criteria.forEach(function (c) {
+      var div = document.createElement("div");
+      div.className = "crit";
+      div.dataset.crit = c.id;
+      var html = '<div class="nm">' + c.name + '</div><div class="df">' + c.definition + '</div><div class="likert">';
+      D.scale.forEach(function (s) {
+        html += '<label data-v="' + s + '"><input type="radio" name="c_' + c.id + '" value="' + s + '" />' +
+                '<span>' + s + ' · ' + D.scale_labels[String(s)] + '</span></label>';
+      });
+      html += '</div>';
+      div.innerHTML = html;
+      host.appendChild(div);
+    });
+    host.querySelectorAll(".likert label").forEach(function (lab) {
+      lab.addEventListener("click", function () {
+        var grp = lab.parentNode.querySelectorAll("label");
+        grp.forEach(function (g) { g.classList.remove("on"); });
+        lab.classList.add("on");
+        lab.querySelector("input").checked = true;
+        persistTrial(true);
+      });
+    });
+  }
+
+  function currentTrial() { return D.trials[state.order[state.idx]]; }
+  function currentRatings() {
+    var t = currentTrial();
+    if (!state.ratings[t.trial_id]) {
+      state.ratings[t.trial_id] = {
+        trial_id: t.trial_id, prompt_id: t.prompt_id, axis: t.axis,
+        image: t.image, usable: null, scores: {}, comment: "",
+        seconds: 0, renderedAt: new Date().toISOString()
+      };
+    }
+    return state.ratings[t.trial_id];
+  }
+
+  var renderAt = Date.now();
+
+  function renderTrial() {
+    var t = currentTrial(), r = currentRatings();
+    renderAt = Date.now();
+    document.getElementById("tPromptId").textContent = t.prompt_id;
+    document.getElementById("tAxis").textContent = t.axis;
+    document.getElementById("tIndex").textContent = (state.idx + 1);
+    document.getElementById("tPrompt").textContent = t.prompt_text;
+
+    var chips = t.must_contain.map(function (m) { return "must say: " + m; })
+      .concat(t.must_show.map(function (m) { return "must show: " + m; }));
+    document.getElementById("tMust").innerHTML =
+      chips.map(function (c) { return '<span class="chip">' + esc(c) + "</span>"; }).join("") ||
+      '<span class="chip">no literal-text requirement</span>';
+
+    var img = document.getElementById("tImage");
+    document.getElementById("imgErr").style.display = "none";
+    img.onerror = function () { document.getElementById("imgErr").style.display = "block"; };
+    img.src = t.image;
+
+    document.getElementById("tComment").value = r.comment || "";
+    document.getElementById("trialErr").textContent = "";
+
+    document.getElementById("tUsable").querySelectorAll("label").forEach(function (lab) {
+      var v = lab.querySelector("input").value;
+      var on = String(r.usable) === v;
+      lab.classList.toggle("on", on);
+      lab.querySelector("input").checked = on;
+    });
+
+    document.querySelectorAll("#critList .crit").forEach(function (div) {
+      var cid = div.dataset.crit;
+      div.querySelectorAll(".likert label").forEach(function (lab) {
+        var on = String(r.scores[cid]) === lab.dataset.v;
+        lab.classList.toggle("on", on);
+        lab.querySelector("input").checked = on;
+      });
+    });
+
+    document.getElementById("btnPrev").disabled = state.idx === 0;
+    updateProgress(); save();
+  }
+
+  function persistTrial(silent) {
+    var r = currentRatings();
+    r.comment = document.getElementById("tComment").value;
+    r.usable = null;
+    document.getElementById("tUsable").querySelectorAll("label").forEach(function (lab) {
+      if (lab.querySelector("input").checked) r.usable = parseInt(lab.querySelector("input").value, 10);
+    });
+    r.scores = {};
+    var all = true;
+    document.querySelectorAll("#critList .crit").forEach(function (div) {
+      var cid = div.dataset.crit, v = null;
+      div.querySelectorAll(".likert label").forEach(function (lab) {
+        if (lab.querySelector("input").checked) v = parseInt(lab.dataset.v, 10);
+      });
+      if (v === null) all = false; else r.scores[cid] = v;
+    });
+    r.scores.__complete = all;
+    r.seconds = Math.round((Date.now() - renderAt) / 1000);
+    r.rater = state.consent ? state.consent.name : "";
+    if (!silent) save();
+    updateProgress();
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  /* ---------- export ---------- */
+  function exportObj() {
+    persistTrial(false);
+    var rows = [], secs = {};
+    for (var k in state.ratings) {
+      var r = state.ratings[k];
+      var row = {
+        rater: state.consent ? state.consent.name : "",
+        rater_email: state.consent ? state.consent.email : "",
+        rater_age: state.consent ? state.consent.age : "",
+        consent_text: state.consent ? state.consent.consent_text : "",
+        reads_devanagari: state.consent ? state.consent.dev : "",
+        consent_given_at: state.consent ? state.consent.at : "",
+        trial_id: r.trial_id, prompt_id: r.prompt_id, axis: r.axis,
+        image: r.image, usable: r.usable,
+        seconds_on_trial: r.seconds, comment: r.comment || ""
+      };
+      D.criteria.forEach(function (c) { row[c.id] = (r.scores || {})[c.id]; });
+      rows.push(row);
+    }
+    rows.sort(function (a, b) { return a.prompt_id < b.prompt_id ? -1 : a.prompt_id > b.prompt_id ? 1 :
+      (a.trial_id < b.trial_id ? -1 : 1); });
+    return {
+      eval_name: D.eval_name, eval_title: D.eval_title,
+      exported_at: new Date().toISOString(),
+      criteria: D.criteria, scale: D.scale, scale_labels: D.scale_labels,
+      shared_settings: D.shared_settings,
+      consent: state.consent, order_seed: state.order_seed,
+      ratings: rows,
+      counts: { trials: D.trials.length, rated: doneCount() }
+    };
+  }
+
+  function csv() {
+    var o = exportObj(), cols = ["rater","rater_email","rater_age","reads_devanagari","consent_text",
+      "consent_given_at","trial_id","prompt_id","axis","image","usable"].concat(
+      D.criteria.map(function (c) { return c.id; })).concat(["seconds_on_trial","comment"]);
+    var lines = [cols.join(",")];
+    o.ratings.forEach(function (r) {
+      lines.push(cols.map(function (c) {
+        var v = r[c] === undefined || r[c] === null ? "" : String(r[c]);
+        return '"' + v.replace(/"/g, '""') + '"';
+      }).join(","));
+    });
+    return lines.join("\n");
+  }
+
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || "text/plain" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function doExport() {
+    var nm = (state.consent && state.consent.name ? state.consent.name : "rater")
+      .replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+    download("dukaanbench_ratings_" + nm + ".json", JSON.stringify(exportObj(), null, 2), "application/json");
+    document.getElementById("autosave").textContent = "Exported JSON to your Downloads folder.";
+  }
+  function doExportCsv() {
+    var nm = (state.consent && state.consent.name ? state.consent.name : "rater")
+      .replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+    download("dukaanbench_ratings_" + nm + ".csv", csv(), "text/csv");
+  }
+
+  /* ---------- wiring ---------- */
+  function gate() {
+    var age = parseInt(document.getElementById("cAge").value, 10);
+    var ok = ["g1","g2","g3","g4"].every(function (id) { return document.getElementById(id).checked; })
+      && document.getElementById("cName").value.trim().length > 0
+      && /\S+@\S+\.\S+/.test(document.getElementById("cEmail").value.trim())
+      && !isNaN(age) && age >= 18;
+    document.getElementById("btnStart").disabled = !ok;
+    return ok;
+  }
+  ["g1","g2","g3","g4","cName","cEmail","cAge"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", gate);
+    document.getElementById(id).addEventListener("change", gate);
+  });
+
+  document.getElementById("btnStart").addEventListener("click", function () {
+    if (!gate()) { document.getElementById("consentErr").textContent =
+      "Please give name, a valid email, an age of 18 or over, and tick all four boxes."; return; }
+    var name = document.getElementById("cName").value.trim();
+    state = blank();
+    state.order_seed = seedFrom(name + "|" + new Date().toDateString());
+    state.order = shuffled(D.trials.map(function (_, i) { return i; }), state.order_seed);
+    state.consent = {
+      name: name,
+      email: document.getElementById("cEmail").value.trim(),
+      age: parseInt(document.getElementById("cAge").value, 10),
+      consent_text: "I confirm that I am 18 years or older. I voluntarily participated in this "
+        + "evaluation. I consent to my name, email, and responses/ratings being included in this "
+        + "assignment submission for hiring evaluation purposes.",
+      dev: document.getElementById("cDev").value,
+      at: new Date().toISOString(),
+      version: 1
+    };
+    document.getElementById("raterName").textContent = name;
+    save(); buildCriteria(); renderTrial(); show("screenTrials");
+  });
+
+  document.getElementById("btnResume").addEventListener("click", function () {
+    var s = load();
+    if (!s || !s.consent) { document.getElementById("consentErr").textContent =
+      "No saved session found in this browser."; return; }
+    state = s;
+    document.getElementById("cName").value = s.consent.name || "";
+    document.getElementById("cEmail").value = s.consent.email || "";
+    document.getElementById("cAge").value = s.consent.age || "";
+    document.getElementById("raterName").textContent = s.consent.name;
+    buildCriteria(); renderTrial(); show("screenTrials");
+  });
+
+  document.getElementById("btnSaveNext").addEventListener("click", function () {
+    persistTrial(false);
+    var r = currentRatings();
+    if (r.usable === null || !r.scores.__complete) {
+      document.getElementById("trialErr").textContent =
+        "Please answer the usability question and all 5 criteria before moving on (or use Skip).";
+      return;
+    }
+    if (state.idx < D.trials.length - 1) { state.idx++; renderTrial(); }
+    else finish();
+  });
+
+  document.getElementById("btnSkip").addEventListener("click", function () {
+    persistTrial(false);
+    if (state.idx < D.trials.length - 1) { state.idx++; renderTrial(); } else finish();
+  });
+
+  document.getElementById("btnPrev").addEventListener("click", function () {
+    persistTrial(false);
+    if (state.idx > 0) { state.idx--; renderTrial(); }
+  });
+
+  document.getElementById("tComment").addEventListener("input", function () {
+    currentRatings().comment = this.value;
+  });
+
+  function finish() {
+    updateProgress();
+    document.getElementById("doneSummary").textContent =
+      "You rated " + doneCount() + " of " + D.trials.length + " images as " +
+      (state.consent ? state.consent.name : "rater") + ". " +
+      "Download your ratings below and send them to the researcher.";
+    show("screenDone");
+  }
+
+  document.getElementById("btnExport").addEventListener("click", doExport);
+  document.getElementById("btnExportTop").addEventListener("click", doExport);
+  document.getElementById("btnExportFinal").addEventListener("click", doExport);
+  document.getElementById("btnExportCsv").addEventListener("click", doExportCsv);
+  document.getElementById("btnBack").addEventListener("click", function () { show("screenConsent"); });
+  document.getElementById("btnRestart").addEventListener("click", function () {
+    if (confirm("Clear this session from the browser?")) {
+      localStorage.removeItem(KEY); location.reload();
+    }
+  });
+
+  /* leaderboard embedded inline so it renders offline (file:// cannot fetch JSON) */
+  var LEADERBOARD = {
+    n_raters: 10, n_ratings: 300, generated_at: "2026-10-09T00:17:20",
+    rows: [
+    {model:"gemini-3-1-flash-image-preview",name:"Google - Gemini 3.1 Flash Image Preview",adherence:4.0,fidelity:3.8,text:3.64,indiafit:3.83,visual:3.7,overall:3.794,consistency:0.007},
+    {model:"gemini-2-5-flash-image",name:"Google - Gemini 2.5 Flash Image",adherence:4.07,fidelity:3.92,text:3.55,indiafit:3.88,visual:3.5,overall:3.784,consistency:0.007},
+    {model:"gemini-3-pro-image",name:"Google - Gemini 3 Pro Image",adherence:4.07,fidelity:3.73,text:3.81,indiafit:3.68,visual:3.6,overall:3.778,consistency:0.007}
+    ]
+  };
+
+  (function () {
+    var j = LEADERBOARD;
+    var tb = document.querySelector("#leaderTable tbody");
+    tb.innerHTML = j.rows.map(function (row) {
+      return "<tr><td>" + esc(row.name || row.model) + "</td>" +
+        ["adherence","fidelity","text","indiafit","visual","overall"].map(function (k) {
+          return '<td class="num">' + (row[k] === null ? "\u2014" : Number(row[k]).toFixed(2)) + "</td>";
+        }).join("") +
+        '<td class="num">' + (row.consistency === null ? "\u2014" : Number(row.consistency).toFixed(3)) + "</td></tr>";
+    }).join("");
+    var c = j.rows.length ? Number(j.rows[0].consistency) : null;
+    var note = document.getElementById("leaderNote");
+    if (c !== null && c < 0.5) {
+      note.innerHTML = "<b style='color:#ff5d5d'>Run flagged: inter-rater consistency " + c.toFixed(3) +
+        " (below the 0.5 bar). The leaderboard is shown for completeness and is <b>not publishable " +
+        "as a ranking</b></b> \u2014 the three models tie on overall (3.78 / 3.79 / 3.78). What survives " +
+        "is a per-criterion trade-off: 3 Pro wins text accuracy, 2.5 Flash wins India fit, 3.1 Flash wins " +
+        "visual quality. Aggregated from " + j.n_raters + " raters \u00b7 " + j.n_ratings +
+        " image-ratings (1,500 criterion judgements).";
+    } else {
+      note.textContent = "Aggregated from " + j.n_raters + " raters \u00b7 " + j.n_ratings + " ratings \u00b7 " + j.generated_at;
+    }
+  })();
+
+  document.getElementById("nTrialsIntro").textContent = D.trials.length;
+  document.getElementById("nTrialsTop").textContent = D.trials.length;
+  document.getElementById("nTrialsTrial").textContent = D.trials.length;
+  document.getElementById("nTrialsFooter").textContent =
+    D.trials.length + " images (" + D.n_models.length + " models)";
+  if (load()) document.getElementById("btnResume").classList.remove("hidden");
+  buildCriteria();
+})();
+</script>
+</body>
+</html>

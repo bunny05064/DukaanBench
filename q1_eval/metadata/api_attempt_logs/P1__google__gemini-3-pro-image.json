@@ -1,0 +1,62 @@
+{
+  "prompt_id": "P1",
+  "prompt_axis": "Devanagari text rendering",
+  "prompt_text": "Square 1:1 promotional product image for an Indian online seller. A clean studio product photo of a neatly folded red cotton kurti on a plain warm-white background, soft daylight, subtle shadow. Put a saffron circular discount badge in the top-right corner containing exactly this text in Devanagari script: 50% छूट. Put the price exactly as ₹799 in bold black text at the bottom-left. Minimal, modern, ready to post on a marketplace listing.",
+  "must_contain": [
+    "50% छूट",
+    "₹799"
+  ],
+  "must_show": [
+    "folded red kurti",
+    "warm-white background",
+    "saffron badge top-right",
+    "price bottom-left"
+  ],
+  "company": "Google",
+  "model": "Gemini 3 Pro Image",
+  "model_id": "gemini-3-pro-image",
+  "docs": "https://ai.google.dev/gemini-api/docs/image-generation",
+  "endpoint": "generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent",
+  "settings": {
+    "aspect": "1:1",
+    "n_images_per_prompt_per_model": 1,
+    "note": "Prompt text is byte-identical across all three models. Aspect ratio is 1:1 everywhere (Gemini aspectRatio=1:1). No negative-prompt or style parameters are used anywhere, because not every model supports them.",
+    "documented_gap": "REQUIRED MODEL NOT RUN: OpenAI - GPT Image 1 (gpt-image-1). Reason: the candidate had no OpenAI API key and no organisation-verified OpenAI project with prepaid credit. The exact ready-to-run script is q1_eval/generate.py (it already contains the full GPT Image 1 call: POST https://api.openai.com/v1/images/generations, model=gpt-image-1, size=1024x1024, quality=high). Setting OPENAI_API_KEY in the repo-root .env and running `python3 q1_eval/generate.py` will fill the gap. It is replaced for this run by Google - Gemini 3 Pro Image, added as an optional model under the brief's permission to add extra models."
+  },
+  "generated_at": "2026-10-08T10:51:31.611880+00:00",
+  "generated_where": "Josh Talks AI hiring challenge, run on candidate machine",
+  "request_variants_tried": [
+    {
+      "variant": 0,
+      "status": 429
+    },
+    {
+      "variant": 1,
+      "status": 429
+    },
+    {
+      "variant": 2,
+      "status": 429
+    },
+    {
+      "variant": 3,
+      "status": 429
+    }
+  ],
+  "http_status": 429,
+  "latency_s": 5.73,
+  "request_body_used": {
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Square 1:1 promotional product image for an Indian online seller. A clean studio product photo of a neatly folded red cotton kurti on a plain warm-white background, soft daylight, subtle shadow. Put a saffron circular discount badge in the top-right corner containing exactly this text in Devanagari script: 50% छूट. Put the price exactly as ₹799 in bold black text at the bottom-left. Minimal, modern, ready to post on a marketplace listing."
+          }
+        ]
+      }
+    ]
+  },
+  "error": "{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro-image\\nPlease retry in 13h8m23.740961334s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3-pro-image\"\n            }\n          },\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3-pro-image\"\n            }\n          },\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\",\n            \"quotaId\": \"GenerateContentInputTokensPerModelPer",
+  "status": "failed",
+  "failure": "gemini-3-pro-image 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota ex"
+}

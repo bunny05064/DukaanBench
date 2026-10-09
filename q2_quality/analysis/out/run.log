@@ -1,0 +1,79 @@
+loaded 51783 tasks
+
+--- feature distributions (all tasks) ---
+listen_ratio = time/duration       n= 51603 p1=    0.179 p5=    0.402 p25=    2.318 p50=    6.289 p75=   13.586 p95=   50.667 p99=  685.312
+chars per second                   n= 51783 p1=    0.200 p5=    1.630 p25=    6.900 p50=   10.370 p75=   12.920 p95=   33.330 p99=   58.330
+edit_ratio vs whisper              n= 28679 p1=    0.000 p5=    0.000 p25=    0.000 p50=    0.136 p75=    0.491 p95=    1.000 p99=    1.000
+time_taken_s                       n= 51603 p1=    1.390 p5=    1.880 p25=    4.680 p50=   12.000 p75=   45.365 p95=  243.105 p99= 2734.139
+duration_s                         n= 51783 p1=    0.120 p5=    0.180 p25=    0.900 p50=    4.000 p75=   10.080 p95=   13.200 p99=   14.220
+user_text chars                    n= 51783 p1=    2.000 p5=    2.000 p25=    7.000 p50=   30.000 p75=   96.000 p95=  155.000 p99=  187.000
+  consensus 50/162 clips
+  consensus 100/162 clips
+  consensus 150/162 clips
+
+--- consensus set: 162 clips, 5410 scored tasks (>=3 raters per clip) ---
+agreement with peers               n=  5410 p1=    0.080 p5=    0.420 p25=    0.694 p50=    0.836 p75=    0.910 p95=    1.000 p99=    1.000
+whisper agreement                  n=  5410 p1=    0.125 p5=    0.250 p25=    0.429 p50=    0.529 p75=    0.586 p95=    0.657 p99=    1.000
+share where user beat whisper: 83.7%
+share where user made whisper worse: 4.6%
+
+--- predictive power of each warning sign (low agreement = bottom quartile) ---
+low-agreement threshold (p25 of agreement) = 0.694
+text length on shared clips: median |whisper|=12.0 |user|=21.0 |consensus|=22.0
+feature                                               n_flag  %of_lowq  %of_rest   lift med_agree med_vs_whisper
+listen_ratio<1 (finished before audio ended)             249     75.9%     22.4%   3.05     0.550           2.8%
+listen_ratio<0.5                                         146     74.0%     23.5%   2.98     0.542           2.1%
+verbatim submit (is_edited=No)                           425     84.9%     19.7%   3.42     0.533           0.0%
+verbatim AND listen_ratio<1                              218     78.4%     22.6%   3.16     0.538           0.0%
+cps>30                                                     1    100.0%     24.8%   4.02     0.250           0.0%
+cps>50                                                     0  (never occurs in scored set)
+edit_ratio<0.05 (claim edited, changed nothing)          482     84.6%     19.0%   3.40     0.538           0.0%
+listen_ratio>50 (idle / tab left open)                   662     31.6%     23.9%   1.27     0.789           4.5%
+user text much shorter than whisper (<50%)                 1    100.0%     24.8%   4.02     0.135         100.0%
+
+--- dose-response: agreement vs how long they took (listen_ratio buckets) ---
+  listen_ratio [    0, 0.25)  n=   39  med_agree=0.600  lowq=64.1%  worse_than_whisper= 0.0%
+  listen_ratio [ 0.25,  0.5)  n=  107  med_agree=0.538  lowq=77.6%  worse_than_whisper= 2.8%
+  listen_ratio [  0.5,    1)  n=  103  med_agree=0.550  lowq=78.6%  worse_than_whisper= 3.9%
+  listen_ratio [    1,    2)  n=  171  med_agree=0.592  lowq=70.2%  worse_than_whisper=10.5%
+  listen_ratio [    2,    5)  n= 1134  med_agree=0.833  lowq=26.8%  worse_than_whisper= 8.1%
+  listen_ratio [    5,   15)  n= 2311  med_agree=0.862  lowq=15.4%  worse_than_whisper= 3.5%
+  listen_ratio [   15,   50)  n=  771  med_agree=0.826  lowq=17.8%  worse_than_whisper= 2.6%
+  listen_ratio [   50,1000000000)  n=  662  med_agree=0.789  lowq=31.6%  worse_than_whisper= 4.5%
+
+--- per-user behaviour (users with >=2 tasks) ---
+   user_id     n med_listen p10_listen  %verbatim %fast_verbatim  med_cps  %idle>50x  med_edit  %no_listen    %flagged
+    580062   609       3.24       0.62      12.8%           3.1%    10.53       4.3%     0.128       28.1%       20.2%
+    393886   509       4.08       0.60       3.1%           0.6%     9.50       4.3%     0.150       25.7%        9.6%
+    681509   358       2.40       0.56       0.8%           0.0%    10.27       4.2%     0.247       30.4%        9.8%
+    410566   349       2.60       0.61       8.3%           2.6%    10.70       3.7%     0.085       29.2%       14.0%
+    222099   333       3.43       0.61       1.2%           0.0%    11.96       3.9%     0.291       27.9%        6.9%
+    311760   184       2.97       0.63       0.0%           0.0%     9.81       2.2%     0.143       29.3%        8.2%
+    467270   176       2.54       0.55       2.8%           1.7%    10.31       3.4%     0.225       33.0%       10.8%
+    632098   165       2.54       0.51      42.4%          23.0%    10.14       3.0%     0.000       33.3%       46.7%
+    326611   149       4.90       0.56       0.0%           0.0%    10.90       5.4%     0.222       28.2%        8.7%
+    688393    86       3.99       0.48      16.3%          11.6%    11.11       4.7%     0.081       32.6%       25.6%
+
+--- candidate detection rules vs measured low-quality label ---
+rule                                                          flag%   prec    rec     f1
+A verbatim submit (user_text == whisper_text)                  7.9%  84.9%  26.8%   0.41
+B finished in <50% of audio                                    2.7%  74.0%   8.0%   0.14
+C finished before audio ended (<100%)                          4.6%  75.9%  14.1%   0.24
+D cut >50% of whisper's words                                  0.0% 100.0%   0.1%   0.00
+E cps > p99 of population (58.3)                               0.0%   nan%   0.0%    nan
+F 'edited' but <2% of words changed                            8.2%  84.9%  28.0%   0.42
+A or D (verbatim OR heavy deletion)                            7.9%  85.0%  26.9%   0.41
+B or D                                                         2.7%  74.1%   8.1%   0.15
+A or B or D                                                    8.1%  84.6%  27.4%   0.41
+A and C (verbatim AND rushed)                                  4.0%  78.4%  12.7%   0.22
+
+--- population rates (single-task users are the comparison set) ---
+tasks finishing before audio ends (listen<1):      11.6%
+tasks finishing in <50% of audio (listen<0.5):     6.5%
+tasks with idle time (listen>50x):                 5.0%
+tasks submitted verbatim (is_edited=No):           16.6%
+verbatim AND listen<1:                             6.9%
+cps > 30:                                          5.6%
+cps > 50:                                          2.6%
+
+wrote /Users/bunnytripathi/JoshTalks-Eval-Challenge/q2_quality/analysis/out/user_risk.json and /Users/bunnytripathi/JoshTalks-Eval-Challenge/q2_quality/analysis/out/scored_tasks.csv

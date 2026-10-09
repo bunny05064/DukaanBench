@@ -1,0 +1,36 @@
+{
+  "prompt_id": "P4",
+  "prompt_axis": "Indian human subject + specific detail",
+  "prompt_text": "Square 1:1 lifestyle product photo for an Indian jewellery seller. A young Indian woman with a red bindi and gold jhumka earrings, wearing a mustard-yellow saree, holding a small lit clay diya in her right hand, warm indoor evening light, plain deep-red background. She is smiling slightly at the camera. No text anywhere in the image.",
+  "must_contain": [],
+  "must_show": [
+    "Indian woman",
+    "red bindi",
+    "gold jhumka earrings",
+    "mustard saree",
+    "diya in right hand",
+    "deep-red background",
+    "no text"
+  ],
+  "company": "Google",
+  "model": "Gemini 3 Pro Image",
+  "model_id": "gemini-3-pro-image",
+  "docs": "https://ai.google.dev/gemini-api/docs/image-generation",
+  "image_file": "P4__google__gemini-3-pro-image.png",
+  "image_size_px": [
+    1024,
+    1024
+  ],
+  "image_bytes": 1463071,
+  "sha256": "e6286f5257deee241f8533992ac7b09c4aad28e6aae88b786293655069a68fc4",
+  "file_modified_at": "2026-10-08T12:44:57.088607+00:00",
+  "where_generated": "Google Gemini web app (gemini.google.com) - manual generation, app model picker set to \"3.1 Pro\"",
+  "settings_or_variations": "app model picker = 3.1 Pro; 1:1 carried inside the prompt text (Square 1:1 ...)",
+  "model_identity_verified": false,
+  "model_identity_note": "The consumer app does not expose the underlying image-generation model. Only the picker label is known, so this image cannot be attributed to a confirmed API model id.",
+  "programmatic_attempt": "Programmatic call blocked: HTTP 429, free-tier image quota limit = 0 (log in metadata/api_attempt_logs/)",
+  "aspect_handling": "1:1 requested in the prompt text itself, so the wording stays byte-identical across models",
+  "status": "ok",
+  "app_picker_label": "3.1 Pro",
+  "required_model_confirmed": false
+}

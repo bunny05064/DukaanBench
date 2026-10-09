@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DukaanBench — quick entry</title>
+<style>
+  :root{--bg:#0f1115;--panel:#171a21;--p2:#1e222b;--line:#2a2f3a;--t:#e8eaf0;--m:#9aa3b2;--a:#ff8a3d;--ok:#3ddc84;--bad:#ff5d5d}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .w{max-width:1080px;margin:0 auto;padding:20px 16px 70px}h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:22px 0 6px;color:var(--a)}
+  p,li{color:var(--m)}.c{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+  label{display:block;margin:9px 0 3px;font-weight:600}
+  input[type=text],input[type=email],input[type=number],textarea,select{width:100%;padding:8px 10px;background:var(--p2);color:var(--t);border:1px solid var(--line);border-radius:8px;font:inherit}
+  textarea{min-height:52px;resize:vertical}
+  .cr{display:flex;gap:9px;align-items:flex-start;margin:10px 0}.cr input{width:18px;height:18px;margin-top:3px;flex:none}.cr span{color:var(--m);font-weight:400}
+  button{background:var(--a);color:#16130f;border:0;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer}
+  button.s{background:var(--p2);color:var(--t);border:1px solid var(--line);font-weight:600}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .row{display:grid;grid-template-columns:74px 1fr 60px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+  .row img{width:60px;height:60px;object-fit:cover;border-radius:6px;background:var(--p2);cursor:pointer}
+  .pid{font-size:12px;color:var(--m)}.ax{font-size:13px;color:var(--t)}
+  .sc{display:flex;gap:3px}
+  .sc button{width:26px;height:30px;padding:0;font-size:12px;background:var(--p2);color:var(--m);border:1px solid var(--line);border-radius:6px;font-weight:600}
+  .sc button.on{background:rgba(255,138,61,.25);border-color:var(--a);color:#fff}
+  .groups{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px}
+  .cl{font-size:10.5px;color:#6b7280;letter-spacing:.02em;margin-bottom:3px;text-transform:capitalize}
+  .row{grid-template-columns:96px minmax(0,1fr) 0}
+  .hdr{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--m)}
+  .err{color:var(--bad);font-size:13px;min-height:16px}
+  .ok{color:var(--ok);font-size:13px}
+  .big{font-size:22px;font-weight:800}
+  table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}th{background:var(--p2)}
+  .tip{background:#10131a;border-left:3px solid var(--a);padding:9px 12px;border-radius:6px;color:var(--m);font-size:13.5px}
+  .kbd{background:var(--p2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px}
+  footer{color:var(--m);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>DukaanBench — quick entry</h1>
+  <p>Log ratings you already collected from a participant. One participant at a time. Produces the
+     same export format as the full rating sheet, so <code>aggregate.py</code> reads it unchanged.</p>
+
+  <!-- STEP 1 -->
+  <div class="c" id="s1">
+    <h2>1 · Participant</h2>
+    <label>Name (required)</label><input type="text" id="nm" placeholder="e.g. Ravi K." />
+    <label>Email (required)</label><input type="email" id="em" placeholder="you@example.com" />
+    <label>Age in years (required, 18+)</label><input type="number" id="ag" min="18" max="100" placeholder="e.g. 26" />
+    <label>Reads Devanagari?</label>
+    <select id="dv"><option>Yes, fluently</option><option>Partially</option><option>No</option></select>
+
+    <div class="cr"><input type="checkbox" id="g1" /><label for="g1">Consent (verbatim from the brief)
+      <span>I confirm that I am 18 years or older. I voluntarily participated in this evaluation.
+      I consent to my name, email, and responses/ratings being included in this assignment
+      submission for hiring evaluation purposes.</span></label></div>
+    <div class="cr"><input type="checkbox" id="g2" /><label for="g2">I collected these ratings from this
+      person myself and they agreed to take part.</label></div>
+    <div class="err" id="e1"></div>
+    <button id="go" disabled>Start rating →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="c" id="s2" style="display:none">
+    <div class="tip" style="margin-top:10px;border-left-color:#3ddc84">
+      <b style="color:#e8eaf0">Per participant:</b> fill details → score all 30 images →
+      click green <b style="color:#e8eaf0">Save &amp; next participant</b> → repeat for the next person.
+      Only at the very end click <b style="color:#e8eaf0">Download all JSON files</b>.
+      Do <b style="color:#ff5d5d">not</b> use "Download ONE participant" in the middle — it overwrites.
+    </div>
+    <div class="hdr">
+      <div><span class="big" id="done">0</span>/30 logged · <span id="who"></span></div>
+      <div>
+        <button id="next" style="background:#3ddc84">Save &amp; next participant →</button>
+        <button class="s" id="expAll">Download ONE participant only</button>
+      </div>
+    </div>
+    <div class="tip" style="margin-top:8px">
+      Each image has <b>5 criteria</b> (adherence, fidelity, text, indiafit, visual), each scored
+      <span class="kbd">1</span> to <span class="kbd">5</span>. Click a number, or click the first
+      number of a row and type <span class="kbd">1</span>–<span class="kbd">5</span> — it jumps to
+      the next criterion automatically. Click the thumbnail to see it full size.
+      All 5 must be set on all 30 images before saving.
+    </div>
+    <div class="err" id="e2"></div>
+    <div id="rows"></div>
+    <div class="ok" id="ok"></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="c" id="s3" style="display:none">
+    <h2>2 · Done — participants logged</h2>
+    <table id="tbl"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Age</th><th>Complete</th></tr></thead><tbody></tbody></table>
+    <div class="c" style="margin-top:14px;background:var(--p2)">
+      <p style="margin-top:0"><b style="color:var(--t)">Now aggregate:</b></p>
+      <p style="margin-bottom:4px">1. Click <b style="color:var(--t)">Download all JSON files</b> — your
+        browser saves one <code>dukaanbench_ratings_&lt;name&gt;.json</code> per participant.</p>
+      <p style="margin-bottom:4px">2. Move them into <code>/Users/bunnytripathi/JoshTalks-Eval-Challenge/q1_eval/rate_results/</code></p>
+      <p style="margin-bottom:12px">3. Run <code>python3 q1_eval/rate_results/aggregate.py</code></p>
+      <button id="dlAll">Download all JSON files</button>
+      <button class="s" id="again">Log another participant</button>
+    </div>
+    <div class="ok" id="ok2"></div>
+  </div>
+
+  <footer>Nothing is uploaded — everything stays in this browser until you download it.</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var D=window.EVAL_DATA, KEY="dukaanbench_quick_v1";
+  var CR=["adherence","fidelity","text","indiafit","visual"];
+  var current=null, session=[], focusIdx=0, focusCrit=0;
+
+  function gate(){
+    var a=parseInt(document.getElementById("ag").value,10);
+    var ok=document.getElementById("nm").value.trim().length>0
+      && /\S+@\S+\.\S+/.test(document.getElementById("em").value.trim())
+      && !isNaN(a)&&a>=18
+      && document.getElementById("g1").checked && document.getElementById("g2").checked;
+    document.getElementById("go").disabled=!ok;
+    return ok;
+  }
+  ["nm","em","ag","g1","g2"].forEach(function(id){
+    document.getElementById(id).addEventListener("input",gate);
+    document.getElementById(id).addEventListener("change",gate);
+  });
+
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(session));}catch(e){} }
+  function load(){ try{session=JSON.parse(localStorage.getItem(KEY))||[];}catch(e){session=[];} }
+
+  function rowHtml(t,i){
+    var groups=CR.map(function(c,k){
+      var btns=[1,2,3,4,5].map(function(v){
+        return '<button data-i="'+i+'" data-c="'+k+'" data-v="'+v+'">'+v+'</button>';
+      }).join("");
+      return '<div><div class="cl">'+c+'</div><div class="sc">'+btns+'</div></div>';
+    }).join("");
+    return '<div class="row" data-i="'+i+'">'
+      + '<div><div class="pid">'+t.prompt_id+'</div><div class="ax" style="font-size:11px">'+
+        (t.axis.length>26?t.axis.slice(0,24)+"\u2026":t.axis)+'</div>'
+      + '<span class="pid" id="cnt'+i+'" style="display:block;margin-top:6px;color:#ff8a3d">0/5</span></div>'
+      + '<div><img src="'+t.image+'" data-full="'+t.image+'" alt="" />'
+      + '<div class="groups">'+groups+'</div></div>'
+      + '<div></div></div>';
+  }
+
+  function build(){
+    current={rater:{},ratings:{},at:new Date().toISOString()};
+    document.getElementById("rows").innerHTML=D.trials.map(rowHtml).join("");
+    document.querySelectorAll(".sc button").forEach(function(b){
+      b.addEventListener("click",function(){
+        var i=+b.dataset.i,k=+b.dataset.c,v=+b.dataset.v;
+        setScore(i,k,v);
+        // move to next criterion then next image
+        var nk=k+1, ni=i;
+        if(nk>=CR.length){nk=0;ni=i+1;}
+        if(ni<D.trials.length){ focus(ni,nk); }
+        update();
+      });
+    });
+    document.querySelectorAll(".row img").forEach(function(im){
+      im.addEventListener("click",function(){ window.open(im.dataset.full,"_blank"); });
+    });
+    update();
+  }
+
+  function get(i){
+    var id=D.trials[i].trial_id;
+    if(!current.ratings[id]) current.ratings[id]={};
+    return current.ratings[id];
+  }
+  function setScore(i,k,v){ get(i)[CR[k]]=v; }
+  function focus(i,k){
+    var b=document.querySelector('.sc button[data-i="'+i+'"][data-c="'+k+'"]');
+    if(b) b.focus();
+  }
+  function update(){
+    var n=0;
+    for(var i=0;i<D.trials.length;i++){
+      var r=current.ratings[D.trials[i].trial_id]||{}, got=0;
+      CR.forEach(function(c){ if(r[c]) got++; });
+      if(got===5) n++;
+      var el=document.getElementById("cnt"+i); if(el) el.textContent=got+"/5";
+    }
+    document.getElementById("done").textContent=n;
+    return n;
+  }
+
+  // keyboard: 1-5 assigns to focused row's current criterion
+  document.addEventListener("keydown",function(e){
+    if(document.getElementById("s2").style.display==="none") return;
+    if(/^[1-5]$/.test(e.key) && document.activeElement && document.activeElement.dataset
+        && document.activeElement.dataset.i!==undefined){
+      e.preventDefault();
+      var b=document.activeElement, i=+b.dataset.i, k=+b.dataset.c;
+      setScore(i,k,+e.key);
+      var nk=k+1, ni=i;
+      if(nk>=CR.length){nk=0;ni=i+1;}
+      if(ni<D.trials.length) focus(ni,nk);
+      update();
+    }
+  });
+
+  document.getElementById("go").addEventListener("click",function(){
+    if(!gate()){document.getElementById("e1").textContent="Fill name, valid email, age 18+, and tick both boxes.";return;}
+    document.getElementById("e1").textContent="";
+    build();
+    document.getElementById("who").textContent=document.getElementById("nm").value.trim();
+    document.getElementById("s1").style.display="none";
+    document.getElementById("s3").style.display="none";
+    document.getElementById("s2").style.display="block";
+    window.scrollTo(0,0);
+  });
+
+  function exportOne(){
+    var n=parseInt(document.getElementById("ag").value,10);
+    var rows=[];
+    D.trials.forEach(function(t){
+      var r=current.ratings[t.trial_id]||{};
+      var got=CR.filter(function(c){return r[c];}).length;
+      var row={
+        rater:document.getElementById("nm").value.trim(),
+        rater_email:document.getElementById("em").value.trim(),
+        rater_age:n,
+        reads_devanagari:document.getElementById("dv").value,
+        consent_text:"I confirm that I am 18 years or older. I voluntarily participated in this evaluation. I consent to my name, email, and responses/ratings being included in this assignment submission for hiring evaluation purposes.",
+        consent_given_at:current.at,
+        trial_id:t.trial_id,prompt_id:t.prompt_id,axis:t.axis,image:t.image,usable:2,
+        seconds_on_trial:0,comment:""
+      };
+      CR.forEach(function(c){ row[c]=r[c]||""; });
+      if(got===5) rows.push(row);
+    });
+    rows.sort(function(a,b){return a.prompt_id<b.prompt_id?-1:a.prompt_id>b.prompt_id?1:(a.trial_id<b.trial_id?-1:1);});
+    return {
+      eval_name:D.eval_name, eval_title:D.eval_title, exported_at:new Date().toISOString(),
+      criteria:D.criteria, scale:D.scale, scale_labels:D.scale_labels, shared_settings:D.shared_settings,
+      consent:{
+        name:document.getElementById("nm").value.trim(),
+        email:document.getElementById("em").value.trim(),
+        age:n, dev:document.getElementById("dv").value, at:current.at, version:1,
+        consent_text:"I confirm that I am 18 years or older. I voluntarily participated in this evaluation. I consent to my name, email, and responses/ratings being included in this assignment submission for hiring evaluation purposes."
+      },
+      ratings:rows, counts:{trials:D.trials.length,rated:rows.length}
+    };
+  }
+
+  function dl(name,text){
+    var b=new Blob([text],{type:"application/json"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;
+    document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+  }
+  function slug(s){return s.replace(/[^a-z0-9]+/gi,"_").toLowerCase();}
+
+  document.getElementById("expAll").addEventListener("click",function(){
+    if(!confirm("This downloads ONE participant and overwrites the previous same-named file.\n\nLogging several people? Use 'Save & next participant' for each, then 'Download all JSON files' once.\n\nDownload just this one anyway?")) return;
+    var n=update();
+    if(n<D.trials.length && !confirm("Only "+n+"/30 complete. Export anyway?")) return;
+    dl("dukaanbench_ratings_"+slug(document.getElementById("nm").value)+".json",
+       JSON.stringify(exportOne(),null,2));
+    document.getElementById("ok").textContent="Exported to Downloads.";
+  });
+
+  document.getElementById("next").addEventListener("click",function(){
+    var n=update();
+    if(n<D.trials.length){ document.getElementById("e2").textContent="Log all 30 images ("+n+"/30 done) before saving."; return; }
+    var vals=[], has2plus=false;
+    D.trials.forEach(function(t){
+      var r=current.ratings[t.trial_id]||{};
+      CR.forEach(function(c){ if(r[c]){ vals.push(r[c]); if(r[c]>1) has2plus=true; } });
+    });
+    if(vals.length && !has2plus){
+      document.getElementById("e2").textContent =
+        "All 150 scores are 1 (= strongly disagree). Each criterion has buttons 1 2 3 4 5 — pick what the person actually said, then save.";
+      return;
+    }
+    document.getElementById("e2").textContent="";
+    session.push(exportOne()); save(); renderList();
+    document.getElementById("s2").style.display="none";
+    document.getElementById("s3").style.display="block";
+    window.scrollTo(0,0);
+  });
+
+  document.getElementById("again").addEventListener("click",function(){
+    document.getElementById("nm").value="";document.getElementById("em").value="";
+    document.getElementById("ag").value="";document.getElementById("g1").checked=false;
+    document.getElementById("g2").checked=false;gate();
+    document.getElementById("s3").style.display="none";
+    document.getElementById("s1").style.display="block";window.scrollTo(0,0);
+  });
+
+  function renderList(){
+    var tb=document.querySelector("#tbl tbody");
+    tb.innerHTML=session.map(function(o,i){
+      return "<tr><td>"+(i+1)+"</td><td>"+o.consent.name+"</td><td>"+o.consent.email+
+             "</td><td>"+o.consent.age+"</td><td>"+o.counts.rated+"/30</td></tr>";
+    }).join("")||'<tr><td colspan="5">none yet</td></tr>';
+  }
+
+  document.getElementById("dlAll").addEventListener("click",function(){
+    if(!session.length){document.getElementById("ok2").textContent="Nothing saved yet.";return;}
+    session.forEach(function(o,i){
+      setTimeout(function(){ dl("dukaanbench_ratings_"+slug(o.consent.name)+(session.length>1?"_"+(i+1):"")+".json",
+        JSON.stringify(o,null,2)); }, i*350);
+    });
+    document.getElementById("ok2").textContent="Downloading "+session.length+" files to Downloads — move them into q1_eval/rate_results/.";
+  });
+
+  load(); renderList();
+  if(session.length){ document.getElementById("s1").style.display="none"; document.getElementById("s3").style.display="block"; }
+})();
+</script>
+</body>
+</html>

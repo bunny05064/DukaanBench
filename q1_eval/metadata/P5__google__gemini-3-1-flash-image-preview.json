@@ -1,0 +1,35 @@
+{
+  "prompt_id": "P5",
+  "prompt_axis": "Packaged food product + Hinglish label",
+  "prompt_text": "Square 1:1 packshot for an Indian grocery brand. A rectangular cardboard packet of rajma standing upright on a plain cream background, the packet design in warm red and cream with a window showing red kidney beans, soft even studio light. The packet must show exactly this text: राजमा 500g. No other text anywhere in the image.",
+  "must_contain": [
+    "राजमा 500g"
+  ],
+  "must_show": [
+    "cardboard packet",
+    "cream background",
+    "kidney beans visible",
+    "no other text"
+  ],
+  "company": "Google",
+  "model": "Gemini 3.1 Flash Image Preview",
+  "model_id": "gemini-3.1-flash-image-preview",
+  "docs": "https://ai.google.dev/gemini-api/docs/image-generation",
+  "image_file": "P5__google__gemini-3-1-flash-image-preview.png",
+  "image_size_px": [
+    1024,
+    1024
+  ],
+  "image_bytes": 658419,
+  "sha256": "9ad80f6914a777d302012ecd72208225e353b38a4fa67c9e69ec72fb30e39140",
+  "file_modified_at": "2026-10-08T12:21:05.807897+00:00",
+  "where_generated": "Google Gemini web app (gemini.google.com) - manual generation, app model picker set to \"3.5 Flash Lite\"",
+  "settings_or_variations": "app model picker = 3.5 Flash Lite; 1:1 carried inside the prompt text (Square 1:1 ...)",
+  "model_identity_verified": false,
+  "model_identity_note": "The consumer app does not expose the underlying image-generation model. Only the picker label is known, so this image cannot be attributed to a confirmed API model id.",
+  "programmatic_attempt": "Programmatic call blocked: HTTP 429, free-tier image quota limit = 0 (log in metadata/api_attempt_logs/)",
+  "aspect_handling": "1:1 requested in the prompt text itself, so the wording stays byte-identical across models",
+  "status": "ok",
+  "app_picker_label": "3.5 Flash Lite",
+  "required_model_confirmed": false
+}

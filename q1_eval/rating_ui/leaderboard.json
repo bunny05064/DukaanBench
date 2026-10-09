@@ -1,0 +1,44 @@
+{
+  "rows": [
+    {
+      "model": "gemini-3-1-flash-image-preview",
+      "model_id": "gemini-3-1-flash-image-preview",
+      "n": 100,
+      "adherence": 4.0,
+      "fidelity": 3.8,
+      "text": 3.64,
+      "indiafit": 3.83,
+      "visual": 3.7,
+      "overall": 3.794,
+      "consistency": 0.007
+    },
+    {
+      "model": "gemini-2-5-flash-image",
+      "model_id": "gemini-2-5-flash-image",
+      "n": 100,
+      "adherence": 4.07,
+      "fidelity": 3.92,
+      "text": 3.55,
+      "indiafit": 3.88,
+      "visual": 3.5,
+      "overall": 3.784,
+      "consistency": 0.007
+    },
+    {
+      "model": "gemini-3-pro-image",
+      "model_id": "gemini-3-pro-image",
+      "n": 100,
+      "adherence": 4.07,
+      "fidelity": 3.73,
+      "text": 3.81,
+      "indiafit": 3.68,
+      "visual": 3.6,
+      "overall": 3.778,
+      "consistency": 0.007
+    }
+  ],
+  "n_raters": 10,
+  "n_ratings": 300,
+  "consistency": 0.007,
+  "generated_at": "2026-10-09T00:17:20"
+}
