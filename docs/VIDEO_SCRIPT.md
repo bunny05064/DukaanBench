@@ -1,5 +1,9 @@
 # Video walkthrough script — 2 minutes (compulsory deliverable)
 
+> **▶ Watch the recorded walkthrough:** [DukaanBench walkthrough (Google Drive)](https://drive.google.com/file/d/1COEtU2dQ6jl9YrAIgCyAl0tZxNHgQ0d2/view?usp=drive_link)
+>
+> The recorded video is the deliverable. This page is the script and shot list it was performed from.
+
 **Format:** screen recording with voiceover. Hard limit: **120 seconds**. Target **1:50**.
 **Recording:** one take, ~140 words/min. The narration below is ~285 words.
 

@@ -515,7 +515,7 @@ eval itself is healthy.
 | Main document (this file) | `docs/MAIN_DOCUMENT.md` |
 | One-page report | `docs/ONE_PAGE_REPORT.md` |
 | Final reflection | `docs/REFLECTION.md` |
-| Video walkthrough script (≤2 min) | `docs/VIDEO_SCRIPT.md` |
+| Video walkthrough (≤2 min) — **watch:** https://drive.google.com/file/d/1COEtU2dQ6jl9YrAIgCyAl0tZxNHgQ0d2/view | `docs/VIDEO_SCRIPT.md` (script) |
 | UI / dashboard / leaderboard design | `docs/DESIGN_UI_DASHBOARD.md` |
 | Prompts + models + criteria (source of truth) | `q1_eval/prompts/prompts.json` |
 | 30 generated images | `q1_eval/images/` |

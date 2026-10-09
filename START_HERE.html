@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DukaanBench — submission · start here</title>
+<style>
+  :root{--bg:#0e1117;--panel:#161b22;--line:#2a3140;--text:#e6edf3;--muted:#8b98a9;--accent:#3ddc84;--warn:#ff5d5d;--blue:#58a6ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 22px 90px}
+  h1{font-size:1.9em;margin:0 0 6px}
+  .sub{color:var(--muted);margin-bottom:26px}
+  h2{font-size:1.15em;margin:34px 0 12px;color:#fff;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+  a.big{display:block;text-decoration:none;color:var(--text)}
+  a.big:hover .card{border-color:var(--accent)}
+  .t{font-weight:600;color:#fff}
+  .d{color:var(--muted);font-size:.92em;margin-top:3px}
+  .tag{display:inline-block;font-size:.72em;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-left:8px;vertical-align:middle}
+  .tag.go{color:var(--accent);border-color:#1f5c37}
+  .warn{background:#2a1416;border:1px solid #5c2326;color:#ffb3b3;border-radius:9px;padding:12px 15px;font-size:.92em}
+  .warn b{color:#ff8080}
+  table{border-collapse:collapse;width:100%;font-size:.9em;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  th{background:#1c2330;color:var(--muted)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .best{color:var(--accent);font-weight:700}
+  footer{color:var(--muted);font-size:.85em;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>DukaanBench — submission</h1>
+  <div class="sub">Josh Talks AI · Product Task, July 2026 · Question 1 (text-to-image eval) + Question 2 (transcriber quality). Open this page first — everything else is one click away.</div>
+
+  <div class="warn" style="margin-bottom:22px">
+    <b>One rule to know up front:</b> the leaderboard below is deliberately <b>not published as a ranking</b>.
+    Inter-rater consistency came back <b>0.007</b> against a 0.5 bar set before collection, so the three models
+    are statistically indistinguishable on overall score. This is reported as the finding, not hidden.
+  </div>
+
+  <h2>Headline result — 10 raters, 1,500 judgements</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Model</th><th class="num">n</th><th class="num">Adherence</th><th class="num">Fidelity</th>
+      <th class="num">Text</th><th class="num">India fit</th><th class="num">Visual</th><th class="num">Overall</th></tr></thead>
+      <tbody>
+        <tr><td>Google — Gemini 2.5 Flash Image</td><td class="num">100</td><td class="num best">4.07</td><td class="num best">3.92</td><td class="num">3.55</td><td class="num best">3.88</td><td class="num">3.50</td><td class="num">3.78</td></tr>
+        <tr><td>Google — Gemini 3.1 Flash Image Preview</td><td class="num">100</td><td class="num">4.00</td><td class="num">3.80</td><td class="num">3.64</td><td class="num">3.83</td><td class="num best">3.70</td><td class="num best">3.79</td></tr>
+        <tr><td>Google — Gemini 3 Pro Image</td><td class="num">100</td><td class="num best">4.07</td><td class="num">3.73</td><td class="num best">3.81</td><td class="num">3.68</td><td class="num">3.60</td><td class="num">3.78</td></tr>
+      </tbody>
+    </table>
+    <div class="d" style="margin-top:10px">Spread across models: <b>0.01 points</b> on a 5-point scale. Each model wins
+      exactly one criterion — a trade-off, not a ranking. Full tables: <a href="docs/MAIN_DOCUMENT.html#63-human-findings">Main document §6.3</a>.</div>
+  </div>
+
+  <h2>Interactive · open directly in your browser</h2>
+  <a class="big" href="q1_eval/rating_ui/dashboard.html"><div class="card">
+    <div class="t">Results dashboard <span class="tag go">interactive</span></div>
+    <div class="d">Model leaderboard · each rater's own rankings · per-criterion breakdown · prompt × model · all 30 images with scores.</div>
+  </div></a>
+  <a class="big" href="q1_eval/rating_ui/index.html"><div class="card">
+    <div class="t">Rating sheet (the tool participants used) <span class="tag go">interactive</span></div>
+    <div class="d">Consent flow, blinded/shuffled trials, 5-criteria scoring, offline. Its results tab shows the run-flagged leaderboard.</div>
+  </div></a>
+
+  <h2>Documents</h2>
+  <a class="big" href="docs/ONE_PAGE_REPORT.html"><div class="card"><div class="t">One-page report</div><div class="d">The whole Q1 eval on one page.</div></div></a>
+  <a class="big" href="docs/MAIN_DOCUMENT.html"><div class="card"><div class="t">Main document</div><div class="d">Design, prompts, workflow, declared gaps, full results (§6.3), scale-up plan.</div></div></a>
+  <a class="big" href="docs/DESIGN_UI_DASHBOARD.html"><div class="card"><div class="t">UI / dashboard design</div><div class="d">What an eval platform should show, including the consistency gate.</div></div></a>
+  <a class="big" href="docs/REFLECTION.html"><div class="card"><div class="t">Final reflection</div><div class="d">Why this eval, why India, what I learned — including my own tooling failure.</div></div></a>
+  <a class="big" href="q2_quality/writeup/Q2_Transcriber_Quality_System.html"><div class="card"><div class="t">Question 2 — low-quality transcriber detection</div><div class="d">Validated 162-clip ground truth, warning signs with precision/recall, and a three-layer blocking system.</div></div></a>
+  <a class="big" href="q1_eval/docs/GENERATION_NOTES.html"><div class="card"><div class="t">Generation notes (honest record)</div><div class="d">How the 30 images were really produced, including the two declared gaps.</div></div></a>
+  <a class="big" href="q1_eval/docs/PARTICIPANT_PROTOCOL.html"><div class="card"><div class="t">Participant protocol</div><div class="d">Exactly how the 10 raters were run.</div></div></a>
+  <a class="big" href="https://drive.google.com/file/d/1COEtU2dQ6jl9YrAIgCyAl0tZxNHgQ0d2/view?usp=drive_link" target="_blank" rel="noopener"><div class="card"><div class="t">&#9654; Watch the walkthrough video (&le;2 min) <span class="tag go">Google Drive</span></div><div class="d">The recorded walkthrough &mdash; click to play in Drive. Script &amp; shot list: <a href="docs/VIDEO_SCRIPT.html">docs/VIDEO_SCRIPT.html</a>.</div></div></a>
+
+  <h2>Declared gaps (stated up front everywhere)</h2>
+  <div class="card">
+    <div class="d" style="font-size:.95em">
+      1. <b>OpenAI GPT Image 1 (required) was not run</b> — no API key. Ready script: <code>q1_eval/generate.py</code>.<br>
+      2. <b>Model identity is unverified for all 30 images</b> — they came from the Gemini consumer app, whose picker
+      never names the underlying image model. The filenames are a labelling convention, not provenance. See
+      <a href="q1_eval/docs/GENERATION_NOTES.html">Generation notes §3b</a>.<br>
+      3. Gemini API image generation returned <code>429 free_tier limit: 0</code>; raw payloads preserved in
+      <code>q1_eval/metadata/api_attempt_logs/</code>.
+    </div>
+  </div>
+
+  <footer>
+    DukaanBench · 10 prompts × 3 Google Gemini app selections × 30 images · 10 participants · 1,500 judgements ·
+    Q2 on 51,783 tasks (162 clips with ≥3 raters). Full-fidelity originals (PNG + matching SHA-256):
+    <a href="https://github.com/bunny05064/DukaanBench">github.com/bunny05064/DukaanBench</a>.
+  </footer>
+</div>
+</body>
+</html>
